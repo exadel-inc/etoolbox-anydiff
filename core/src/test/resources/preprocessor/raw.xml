@@ -1,0 +1,11 @@
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+          height="{Double}480.0"
+          jcr:primaryType="nt:unstructured"
+          jcr:title="My Component"
+          sling:resourceType="cq/gui/components/authoring/dialog"
+          width="{Double}560.0"><content jcr:primaryType="nt:unstructured" sling:resourceType="granite/ui/components/coral/foundation/container"><items jcr:primaryType="nt:unstructured"><tabs jcr:primaryType="nt:unstructured" sling:resourceType="granite/ui/components/coral/foundation/tabs"><items jcr:primaryType="nt:unstructured"><mainConfig jcr:primaryType="nt:unstructured" jcr:title="Main Config" sling:resourceType="granite/ui/components/coral/foundation/container"><items jcr:primaryType="nt:unstructured"><title disabled="{Boolean}false" fieldDescription="Enter title" fieldLabel="Title" jcr:primaryType="nt:unstructured" name="./title" sling:resourceType="granite/ui/components/coral/foundation/form/textfield"><content>Lorem ipsum</content><granite:data hpe-msm-lockable="./title" jcr:primaryType="nt:unstructured"/></title><description disabled="{Boolean}false" fieldDescription="Enter description" fieldLabel="Description" jcr:primaryType="nt:unstructured" name="./description" renderHidden="{Boolean}false" required="{Boolean}false" sling:resourceType="granite/ui/components/coral/foundation/form/textfield"><granite:data hpe-msm-lockable="./description" jcr:primaryType="nt:unstructured"/></description><msmConfigEndpoint granite:class="msm-config-endpoint" jcr:primaryType="nt:unstructured" sling:resourceType="granite/ui/components/coral/foundation/form/hidden" value="${requestPathInfo.suffix}">
+
+</msmConfigEndpoint></items></mainConfig><comment>Dolor sit amet</comment></items></tabs></items></content></jcr:root>

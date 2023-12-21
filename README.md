@@ -1,71 +1,150 @@
-# SOLUTION NAME
-![GitHub contributors](https://img.shields.io/github/contributors/exadel-inc/repository-template)
-![GitHub Repo stars](https://img.shields.io/github/stars/exadel-inc/repository-template?style=plastic)
-![GitHub Repo forks](https://img.shields.io/github/forks/exadel-inc/repository-template?style=plastic)
-![GitHub issues](https://img.shields.io/github/issues/exadel-inc/repository-template)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+# EToolbox AnyDiff
+![Project logo](logo.png)
 
-![](logo.png)
+It is a Java library and a command line utility to visually compare content of files and manage differences. Mostly aimed at comparing XML and HTML files but can be used with any textual content.
 
-**SOLUTION NAME** is a tool or something else. Need to write few words about solution and short description of targets which solution solve.
+### Motivation
 
-## Description
+Compare web pages as rendered by two different versions of server code or hosted at different environments. Compare Adobe Experience Manager (TM) content packages assembled in different builds (from different code branches, etc.). Compare XML output such as Adobe Granite (TM) markup for AEM dialogs; and more.
 
-A full description of the solution, features, benefits, basic functionality, goals with screenshots of the results, screenshots of the product user interface should be located here.
+This tool was originally created to accompany [Exadel Authoring Kit for AEM](https://github.com/exadel-inc/etoolbox-authoring-kit) and perform regression testing. However it can be used to visualize differences between any two sets of files inside and outside the AEM ecosystem.
 
-[![Solution Screen Shot][product-screenshot]](https://example.com)
+### Features
 
-Additional necessary information about the solution
+There is the [Java library](./core) available via Maven and a [command-line application](./cli). Both offer the same set of features.
 
-## System Requirements
+Feature display is per the CLI utility.
 
-This is an example of how to list things you need to use the software and how to install them.
- - npm ```npm install npm@latest -g```
+##### Compare two files, directories
+```
+java -jar anydiff.jar --left file1.html --right file2.html
+```
 
-## Installation
+This will output to the console (and also to a log file) disparities between two files as follows:
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```JS
-   const API_KEY = 'ENTER YOUR API';
-   ```
+![Console output](./docs/screen1.png)
 
-## Getting Started
+You can specify more than one files for both the `--left` and `--right` arguments, space-separated. You can also specify directories or listing files (the ones with the `.lst` or `.list` extensions).
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Change the captions for the columns for better clarity with `[...]` syntax
+```
+java -jar anydiff.jar --left "[Original]/var/log/myapp/" --right "[After update]/var/log/myapp"
 
-## Documentation
+```
 
-You can find the documentation [in the project's Wiki](#).  
+##### Compare two AEM packages
+```
+java -jar anydiff.jar --left ./target/ui.content-1.120.1.zip --right ./target/ui.content-1.120.2.zip
+```
 
-## Contributing
+##### Compare two URLs
+```
+java -jar anydiff.jar --left http://localhost:4502/content/we-retail/us/en.html?foo=bar --right https://some.aem.instance:4502/content/we-retail/us/en.html?foo=bar&@User-Agent=PostmanRuntime/7.33.0&@nosslcheck
+```
+Mind the `@`-prefixed query parameters. This is the way to set custom request headers for the HTTP client. The parameter processed client-side and not passed to the remote endpoint.
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Also mind the `@nosslcheck`. This is not a custom header but a reserved flag that tells to trust all SSL certificate. (Can be useful when working in trusted environments that have issues with SSL certificates. However, be cautious using this option when requesting an occasional Internet host)
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+##### Log differences to a file
 
-Contributions are welcomed and greatly appreciated.
-After creating your first contributing PR you will be requested to sign our Contributor License Agreement by commenting your PR with a special message.
+By default, the same output as seen on the screen is logged to a file under `$HOME/.etoolbox-anydiff/logs` (in text file, `~...~` marks the removal and `+...+` the insertion).
 
-## License
+Pass the `--html` argument (or `-h`) to the command line to additionally store an HTML log under `$HOME/.etoolbox-anydiff/html`. Use `--browse` (`-b`) to open the HTML file in the default browser.
 
-Distributed under the MIT License. See `LICENSE` for more information.
+![HTML Output](./docs/screen2.png)
 
-## Contact
+##### Modifying comparison output
 
-Messengers and other contacts
+Use `--width XX` (or `-w XX`) to modify the width of the column in the console and log file. Default is _60_.
 
-[product-screenshot]: screenshot.png
+Use `--arrange (true|false)` (or `-a (true|false)`) to control comparison of markup files. When set to true, attributes of XML and HTML nodes are arranged alphabetically before comparing. Therefore, no disparity is reported when attributes are in different order. Set it to false if the original order actually matters. Default is _true_.
+
+Use `--normalize (true|false)` (or `-n (true|false)`) to control whether the program re-formats markup files (XML, HTML) before comparison for more accurate and granular results. Default is _true_.
+
+Use `--ignore-spaces` (or `-i`) to make the comparison neglect the number of spaces between words. Default is _false_.
+Please note: this setting is partially overlapped by `normalize` and `arrange` because preparing perfectly aligned markup trees leads to many empty lines and indentations removed. In markup files ignoring spaces mostly relates to text nodes and literals. In non-markup files it is more universal.
+
+### Java API
+
+The same features are available via the Java API. The usual entry point is the [Comparator](./core/src/main/java/com/exadel/etoolbox/anydiff/Comparator.java) class which may be used as follows:
+
+```
+import com.exadel.etoolbox.anydiff.Comparator;
+import com.exadel.etoolbox.anydiff.diff.Diff;
+
+class Main {
+    // ...
+    List<Diff> differences = new Comparator()
+        .left("path/to/file.html")
+        .right("/path/to/another/file.html")
+        .compare();
+    if (Comparator.isMatch(differences)) {
+       // ...
+    }
+}
+```
+
+### Diff filters
+
+One of the powerful features is the ability to eliminate or else "mute" the differences that are not essential or well anticipated. E.g., when comparing live web pages you will certainly face various timestamps, UUIDs, analytic attributes, etc. which do not actually make web pages different.
+
+These and other differences can be skipped via _filters_ which are applied to the differences before they are reported.
+
+There are two ways to define filters: with Java (for use with Java API) and with JavaScript (for use with the command-line interface).
+
+From the Java API perspective, filters are descendants of the [Filter](./core/src/main/java/com/exadel/etoolbox/anydiff/filter/Filter.java) interface. You can override one or more methods of it.
+
+From the CLI perspective, filters are `.js` files stored in a directory that you specify with the `--filters "/path/to/filters"` argument. Every `.js` file contains one or more user-defined functions (see below).
+
+A filter does one of the two actions:
+- _skip_: means that the difference is not reported at all;
+- _accept_: means that the difference is "acknowledged". It is reported in the output (to say, for the reference) but is not counted as a real difference == does not affect the result of `isMatch()` call.
+
+A filter can be applied to any of the following entities:
+- _diff_: this is the "root" object which usually manifests a pair of whole files or web pages. A diff has its `getLeft()` and `getRight()` methods that return paths to the files of URLs. With _diff_ one can skip a file/page from analysis by their name;
+- _block_: this is a sequence of lines that encompass a difference (roughly similar to what we see in a GitHub diff). There are lines with actual differences and lines that are just context. A block has its `getLeft()` and `getRight()` methods that returns left and right text accordingly;
+- _line_: this is a single line of text inside a block;
+- _fragment pair_: manifests the particular words or symbols within a line that are different for even more granular approach. To expose a fragment pair, a line must have the same number of differences in the left and right part (e.g., a single difference). Also, the first difference must be at the same offset in both parts;
+- _fragment_: a single char/symbol sequence within a line that is different from the opposite part. May be either a part of a fragment pair or a standalone difference.
+
+Java API provides a separate method for every action and entity, like `skipBlock` or `acceptFragment`, etc.
+
+JS API encourages you to define your own functions with the name that matches an action and the argument name that matches an entity. E.g.:
+```
+function skip(block) {
+    return block.getLeft().startsWith("<!--");
+}
+
+function accept(fragments) { /* "fragments" == "fragment pair" in meaning */
+    return fragments.getLeft().startsWith("lorem") && fragments.getRight().includes("ipsum");
+}
+```
+There can be more than one function in a file. All of them will be applied to the differences.
+
+See examples of filters in the [test resources folder](./core/src/test/resources/filter).
+
+### Troubleshooting
+
+##### My Windows console does not display colored output
+
+This can happen in an older Windows version. See the solution [here](https://ss64.com/nt/syntax-ansi.html).
+
+### Licensing and credits
+
+This software is licensed under the [Apache License, Version 2.0](./LICENSE).
+
+The project makes use of the following open-source libraries:
+
+- [Apache Commons CLI](https://github.com/apache/commons-cli) under the Apache License, Version 2.0;
+- [Apache Commons Collections](https://github.com/apache/commons-collections) under the Apache License, Version 2.0;
+- [Apache HTTP Client](https://github.com/apache/httpd) under the Apache License, Version 2.0;
+- [Apache Commons IO](https://github.com/apache/commons-io/) under the Apache License, Version 2.0;
+- [Apache Commons Lang](https://github.com/apache/commons-lang/) under the Apache License, Version 2.0;
+- [Java Diff Utils](https://github.com/java-diff-utils/java-diff-utils) under the Apache License, Version 2.0;
+- [Jsoup: Java HTML Parser](https://github.com/jhy/jsoup) under the [MIT License](https://opensource.org/license/mit/);
+- [JUnit](https://github.com/junit-team/junit4) under the [Eclipse Public License Version 1.0](https://www.eclipse.org/legal/epl-v10.html);
+- [Logback](https://github.com/qos-ch/logback) under the Eclipse Public License Version 1.0;
+- [Mockito](https://github.com/mockito/mockito) under the MIT License;
+- [Mozilla Rhino](https://github.com/mozilla/rhino) under the [Mozilla Public License Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/);
+- [Project Lombok](https://github.com/projectlombok/lombok) under the [License](https://github.com/projectlombok/lombok/blob/master/LICENSE);
+- [SLF4J](https://github.com/qos-ch/slf4j) under the MIT License.

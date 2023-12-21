@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<catalog>
+<items>
+<item id="bk101" tag="adipiscing">
+    <title>Lorem ipsum  dolores sit amet</title><description>Consectetur adipiscing elit</description>
+</item>
+<item id="bk102" tag="eiusmod">
+    <title>Sed do eiusmod tempor incididunt</title><description>Ut labore et dolore magna aliqua</description>
+</item>
+<item id="bk102" tag="fringilla">
+    <title>Egestas ecclesias fringilla phasellus faucibus</title>
+    <description>Fermentum dui faucibus in ornare quam viverra</description>
+</item>
+</items>
+</catalog>
