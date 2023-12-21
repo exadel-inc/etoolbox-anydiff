@@ -1,0 +1,120 @@
+body {
+    font-family: sans-serif;
+    margin: 1rem 2rem;
+}
+
+a, a:visited {
+    color: #909090;
+    text-decoration: none;
+}
+
+a span {
+    color: #404040;
+}
+
+a[href="#toc"] {
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+h4 {
+    color: #909090;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 3rem 0 1rem 0;
+}
+
+h4 > span {
+    color: #000;
+    flex: 1;
+}
+
+h4 > span.left {
+    text-align: right;
+}
+
+h4 > span.center {
+    text-align: center;
+}
+
+section {
+    border: 1px Solid #ddd;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 5px -2px rgba(0,0,0,0.25);
+    margin: 2rem 0;
+    padding: 0.5rem 1rem;
+}
+
+section.toc li {
+    color: #C0C0C0;
+    margin: 0.4rem 0;
+}
+
+line {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+line.header {
+    padding: 1rem 0 1.4rem 0;
+}
+
+line.header > div {
+    text-align: center;
+}
+
+line:not(.header) {
+    font-family: monospace;
+    font-size: 1.05rem;
+    line-height: 1.25rem;
+}
+
+section:not(.no-highlight) line:not(.header):nth-child(even) > .left {
+    background-color: #f2f2f2;
+}
+
+section:not(.no-highlight) line:not(.header):nth-child(even) > .right {
+    background-color: #e6f8ff;
+}
+
+line.ellipsis {
+    justify-content: center;
+}
+
+line > div {
+    flex: 1;
+    flex-basis: 100%;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.path {
+    font-size: 0.9rem;
+    text-align: right;
+    color: #909090;
+}
+
+.eq {
+    color: #909090;
+}
+
+.ins {
+    background-color: #bfffaf;
+}
+
+.del {
+    background-color: #ffcec9;
+}
+
+.ins,.del {
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none;
+}

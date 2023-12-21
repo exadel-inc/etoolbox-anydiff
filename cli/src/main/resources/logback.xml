@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <timestamp key="timestamp" datePattern="yyyyMMddHHmmss"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="com.exadel.etoolbox.anydiff.log.ExcludingEventEvaluator">
+                <exclude>FILE_ONLY</exclude>
+                <localCodeThreshold>INFO</localCodeThreshold>
+                <foreignCodeThreshold>INFO</foreignCodeThreshold>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>ACCEPT</OnMatch>
+        </filter>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="com.exadel.etoolbox.anydiff.log.FileAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="com.exadel.etoolbox.anydiff.log.ExcludingEventEvaluator">
+                <exclude>CONSOLE_ONLY</exclude>
+                <localCodeThreshold>DEBUG</localCodeThreshold>
+                <foreignCodeThreshold>INFO</foreignCodeThreshold>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>ACCEPT</OnMatch>
+        </filter>
+        <file>${user.home}/.etoolbox-anydiff/logs/${timestamp}.log</file>
+        <maxHistory>20</maxHistory>
+        <append>false</append>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
