@@ -69,19 +69,25 @@ Please note: this setting is partially overlapped by `normalize` and `arrange` b
 The same features are available via the Java API. The usual entry point is the [Comparator](./core/src/main/java/com/exadel/etoolbox/anydiff/Comparator.java) class which may be used as follows:
 
 ```
-import com.exadel.etoolbox.anydiff.Comparator;
-import com.exadel.etoolbox.anydiff.diff.Diff;
-
 class Main {
     // ...
-    List<Diff> differences = new Comparator()
+    List<Diff> differences = new AnyDiff()
         .left("path/to/file.html")
         .right("/path/to/another/file.html")
         .compare();
-    if (Comparator.isMatch(differences)) {
+    if (AnyDiff.isMatch(differences)) {
        // ...
     }
 }
+```
+
+To use Java API, add the following dependency to your Maven project:
+```
+<dependency>
+    <groupId>com.exadel.etoolbox</groupId>
+    <artifactId>etoolbox-anydiff-core</artifactId>
+    <version>1.0.0</version> <!-- or the latest version -->
+</dependency>
 ```
 
 ### Diff filters
