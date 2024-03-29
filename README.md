@@ -88,9 +88,17 @@ To use Java API, add the following dependency to your Maven project:
 <dependency>
     <groupId>com.exadel.etoolbox</groupId>
     <artifactId>etoolbox-anydiff-core</artifactId>
-    <version>1.0.0</version> <!-- or the latest version -->
+    <version>1.0.0</version> <!-- always prefer the latest stable version -->
 </dependency>
 ```
+
+#### Features that are available only via Java API
+
+Some features are available only via Java API. They are:
+- _preprocessor_ - the ability to specify a routine that will be applied to the content before comparison. This is useful when you need to remove or replace some parts of the content that are not essential or else apply specific formatting (e.g., split into shorter lines);
+- _postprocessor_ - the ability to specify a routine that will be applied to the differences after comparison. This is useful when you need to revert the changes introduced by a preprocessor apply or otherwise reformat the already compared content.
+
+Please see documentation on [AnyDiff utility](./core/src/main/java/com/exadel/etoolbox/anydiff/AnyDiff.java) for more details.
 
 ### Diff filters
 
