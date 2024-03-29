@@ -74,13 +74,13 @@ class BlockImpl extends AbstractBlock implements EntryHolder, StructureEntry, Fr
         if (getLines().stream().anyMatch(line -> line.getState() == DiffState.CHANGE)) {
             return DiffState.CHANGE;
         }
-        if (getLines().stream().anyMatch(line -> line.getState() == DiffState.LEFT_MISSING)) {
+        if (getLines().stream().allMatch(line -> line.getState() == DiffState.LEFT_MISSING || line.getState() == DiffState.UNCHANGED)) {
             return DiffState.LEFT_MISSING;
         }
-        if (getLines().stream().anyMatch(line -> line.getState() == DiffState.RIGHT_MISSING)) {
+        if (getLines().stream().allMatch(line -> line.getState() == DiffState.RIGHT_MISSING || line.getState() == DiffState.UNCHANGED)) {
             return DiffState.RIGHT_MISSING;
         }
-        return DiffState.UNCHANGED;
+        return DiffState.CHANGE;
     }
 
     @Override
