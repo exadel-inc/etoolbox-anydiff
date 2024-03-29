@@ -29,10 +29,8 @@ import java.util.function.Predicate;
  */
 class MarkupFragmentImpl extends FragmentImpl implements MarkupFragment {
 
-    private static final Predicate<Character> IS_NAME_PART = chr -> Character.isLetterOrDigit(chr)
-            || chr == Constants.DASH_CHAR
-            || chr == Constants.UNDERSCORE_CHAR
-            || chr == Constants.COLON_CHAR;
+    private static final char EQUALS_CHAR = '=';
+    private static final char QUOTE_CHAR = '"';
 
     /**
      * Creates a new instance of {@link MarkupFragmentImpl} class
@@ -76,20 +74,67 @@ class MarkupFragmentImpl extends FragmentImpl implements MarkupFragment {
                 && getOffset() > getSource().indexOf(Constants.TAG_CLOSE, ((FragmentImpl) tag).getOffset());
     }
 
+    @Override
+    public boolean isJsonValue(String name) {
+        Fragment property = toJsonProperty();
+        if (property == null) {
+            return false;
+        }
+        return StringUtils.startsWith(property, QUOTE_CHAR + name + QUOTE_CHAR);
+    }
+
+    /* --------------
+       Coercing logic
+       -------------- */
+
     /**
      * Retrieves a {@link Fragment} representing an XML/HTML attribute inside which the current fragment is situated
      * @return {@link Fragment} instance or {@code null} if the current fragment is not situated inside an attribute
      */
     Fragment toAttribute() {
-        int startQuote = moveLeftTo(getOffset(), Constants.TAG_ATTR_OPEN, Constants.TAG_ATTR_CLOSE);
-        if (startQuote == -1) {
+        int startQuotePosition = moveLeftTo(
+            getOffset(),
+            pos -> getSource().charAt(pos) == QUOTE_CHAR);
+        if (startQuotePosition <= 0 || getSource().charAt(startQuotePosition - 1) != EQUALS_CHAR) {
             return null;
         }
-        int endQuote = moveRightTo(getEndOffset(), Constants.TAG_ATTR_CLOSE);
-        int namedOffset = moveLeftWhile(getSource(), startQuote, IS_NAME_PART);
-        return namedOffset < startQuote
-                ? new MarkupFragmentImpl(getSource(), namedOffset, endQuote)
+        int endQuotePosition = moveRightTo(getEndOffset(), pos -> getSource().charAt(pos) == QUOTE_CHAR);
+        if (endQuotePosition < startQuotePosition) {
+            return null;
+        }
+        endQuotePosition++;
+        int namedOffset = moveLeftWhile(startQuotePosition - 1, pos -> isPartOfName(getSource().charAt(pos)));
+        return namedOffset < startQuotePosition
+                ? new MarkupFragmentImpl(getSource(), namedOffset, endQuotePosition)
                 : null;
+    }
+
+    Fragment toJsonProperty() {
+        int valueStartQuotePosition = moveLeftTo(getOffset(), pos -> getSource().charAt(pos) == QUOTE_CHAR);
+        if (valueStartQuotePosition <= 0) {
+            return null;
+        }
+        int valueEndQuotePosition = moveRightTo(getEndOffset(), pos -> getSource().charAt(pos) == QUOTE_CHAR);
+        if (valueEndQuotePosition < valueStartQuotePosition) {
+            return null;
+        }
+        valueEndQuotePosition++;
+        int colonPosition = moveLeftWhile(
+            valueStartQuotePosition,
+            pos -> isWhitespaceOrGivenChar(getSource().charAt(pos), Constants.COLON_CHAR));
+        if (colonPosition < 0 || colonPosition == valueStartQuotePosition || getSource().charAt(colonPosition) != Constants.COLON_CHAR) {
+            return null;
+        }
+        int keyEndQuotePosition = moveLeftWhile(
+            colonPosition,
+            pos -> isWhitespaceOrGivenChar(getSource().charAt(pos), QUOTE_CHAR));
+        if (keyEndQuotePosition < 0 || keyEndQuotePosition == colonPosition || getSource().charAt(keyEndQuotePosition) != QUOTE_CHAR) {
+            return null;
+        }
+        int keyStartQuotePosition = moveLeftTo(keyEndQuotePosition - 1, pos -> getSource().charAt(pos) == QUOTE_CHAR);
+        return keyStartQuotePosition < 0
+            ? null
+            : new MarkupFragmentImpl(getSource(), keyStartQuotePosition, valueEndQuotePosition);
     }
 
     /**
@@ -107,14 +152,15 @@ class MarkupFragmentImpl extends FragmentImpl implements MarkupFragment {
      * @return A {@link Fragment} instance that can be equal to the value of {@code fallback}
      */
     private Fragment toTag(int position, Fragment fallback) {
-        int openingTagOffset = moveLeftTo(position, Constants.TAG_OPEN, null);
+        int openingTagOffset = moveLeftTo(position, pos -> getSource().charAt(pos) == Constants.TAG_OPEN_CHAR);
         if (openingTagOffset < 0) {
             return fallback;
         }
-        int openingTagEndOffset = moveRightTo(openingTagOffset, Constants.TAG_CLOSE);
+        int openingTagEndOffset = moveRightTo(openingTagOffset, pos -> getSource().charAt(pos) == Constants.TAG_CLOSE_CHAR);
         if (openingTagEndOffset < openingTagOffset) {
             return fallback;
         }
+        openingTagEndOffset++;
         boolean isSelfClosedTag = getSource().charAt(openingTagEndOffset - 1) == Constants.SLASH_CHAR;
         if (isSelfClosedTag && openingTagEndOffset > getEndOffset()) {
             return new MarkupFragmentImpl(getSource(), openingTagOffset, openingTagEndOffset + 1);
@@ -135,44 +181,43 @@ class MarkupFragmentImpl extends FragmentImpl implements MarkupFragment {
         return toTag(openingTagOffset - 1, fallback != null ? fallback : incompleteTag);
     }
 
-    private int moveLeftTo(int position, String target, String stopper) {
-        if (getSource().startsWith(target, position)) {
-            return getOffset();
-        }
-        int left = position - target.length();
-        while (left >= 0 && !getSource().startsWith(target, left)) {
-            if (stopper != null && getSource().startsWith(stopper, left)) {
-                return -1;
+    /* --------------------
+       Utilities: Traversal
+       -------------------- */
+
+    private int moveLeftTo(int position, Predicate<Integer> target) {
+        int left = position;
+        while (left >= 0) {
+            if (target.test(left)) {
+                return left;
             }
             left--;
         }
-        return getSource().startsWith(target, left) ? left : -1;
+        return -1;
     }
 
-    private int moveRightTo(int position, String ending) {
-        if (position + ending.length() > getSource().length()) {
-            return -1;
-        }
+    private int moveRightTo(int position, Predicate<Integer> target) {
         int right = position;
-        while (right < getSource().length() && !getSource().startsWith(ending, right)) {
+        while (right < getSource().length()) {
+            if (target.test(right)) {
+                return right;
+            }
             right++;
         }
-        return getSource().startsWith(ending, right) ? right + ending.length() : -1;
+        return -1;
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private static int moveLeftWhile(String source, int offset, Predicate<Character> filter) {
+    private static int moveLeftWhile(int offset, Predicate<Integer> filter) {
         int left = offset - 1;
-        while (left >= 0 && filter.test(source.charAt(left))) {
+        while (left >= 0 && filter.test(left)) {
             left--;
         }
         return left + 1;
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private static int moveRightWhile(String source, int offset, Predicate<Character> filter) {
+    private static int moveRightWhile(int offset, Predicate<Integer> filter) {
         int right = offset;
-        while (right < source.length() && filter.test(source.charAt(right))) {
+        while (filter.test(right)) {
             right++;
         }
         return right;
@@ -180,9 +225,28 @@ class MarkupFragmentImpl extends FragmentImpl implements MarkupFragment {
 
     private static String getName(String source, int offset) {
         int beginOffset = source.charAt(offset) == Constants.TAG_OPEN_CHAR ? offset + 1 : offset;
-        int endOffset = moveRightWhile(source, beginOffset, IS_NAME_PART);
+        int endOffset = moveRightWhile(beginOffset, pos -> pos < source.length() && isPartOfName(source.charAt(pos)));
         return endOffset > beginOffset ? source.substring(beginOffset, endOffset) : StringUtils.EMPTY;
     }
+
+    /* ---------------------------
+       Utilities: Char attribution
+       --------------------------- */
+
+    private static boolean isPartOfName(char value) {
+        return  Character.isLetterOrDigit(value)
+            || value == Constants.DASH_CHAR
+            || value == Constants.UNDERSCORE_CHAR
+            || value == Constants.COLON_CHAR;
+    }
+
+    private static boolean isWhitespaceOrGivenChar(char value, char target) {
+        return Character.isWhitespace(value) || value == target;
+    }
+
+    /* ---------------
+       Utility classes
+       --------------- */
 
     /**
      * Represents a tag identifier used to match a tag by its name and/or attributes
