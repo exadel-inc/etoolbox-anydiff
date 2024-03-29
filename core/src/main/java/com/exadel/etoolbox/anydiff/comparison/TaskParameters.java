@@ -105,10 +105,18 @@ public class TaskParameters {
         return normalize != null ? normalize : Constants.DEFAULT_NORMALIZE;
     }
 
+    /**
+     * Gets the map of preprocessors to be applied to the content before comparison
+     * @return {@code Map} instance
+     */
     public Map<ContentType, Preprocessor> getPreprocessors() {
         return MapUtils.emptyIfNull(preprocessors);
     }
 
+    /**
+     * Gets the map of postprocessors to be applied to the content after comparison
+     * @return {@code Map} instance
+     */
     public Map<ContentType, Postprocessor> getPostprocessors() {
         return MapUtils.emptyIfNull(postprocessors);
     }

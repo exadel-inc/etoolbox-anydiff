@@ -295,6 +295,13 @@ public class AnyDiff {
         return this;
     }
 
+    /**
+     * Assigns a preprocessor for the compared content. A preprocessor is used to modify content or apply additional
+     * formatting before the comparison starts
+     * @param contentType A {@link ContentType} value that represents the type of content to preprocess
+     * @param value A {@link Preprocessor} object to use for the processing
+     * @return This instance
+     */
     public AnyDiff preprocessor(ContentType contentType, Preprocessor value) {
         if (this.preprocessors == null) {
             this.preprocessors = new EnumMap<>(ContentType.class);
@@ -303,6 +310,13 @@ public class AnyDiff {
         return this;
     }
 
+    /**
+     * Assigns a postprocessor for the compared content. A postprocessor is used to revert modifications made by a
+     * preprocessor or otherwise change the content before displaying the diff
+     * @param contentType A {@link ContentType} value that represents the type of content to post-process
+     * @param value A {@link Postprocessor} object to use for the processing
+     * @return This instance
+     */
     public AnyDiff postprocessor(ContentType contentType, Postprocessor value) {
         if (this.postprocessors == null) {
             this.postprocessors = new EnumMap<>(ContentType.class);
