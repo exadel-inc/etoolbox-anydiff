@@ -55,6 +55,7 @@ public interface FragmentHolder {
     /**
      * Accepts the fragment, that is, silences it so that it no longer leads to the {@link AnyDiff} reporting a
      * mismatch. However, the fragment is still included in the {@link Diff} and can be displayed to the user
+     * @param value {@code Fragment} object to accept
      */
     void accept(Fragment value);
 

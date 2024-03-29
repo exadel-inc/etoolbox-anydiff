@@ -228,7 +228,7 @@ public class DiffTask {
 
     /**
      * Creates a builder for constructing a new {@code DiffTask} object
-     * @return {@link DiffTask.Builder} instance
+     * @return {@code DiffTask.Builder} instance
      */
     public static Builder builder() {
         return new InitializingBuilder();

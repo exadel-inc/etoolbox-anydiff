@@ -95,6 +95,7 @@ public class ContentUtil {
     /**
      * Extracts the optional label from the given string
      * @param value Source string
+     * @param fallback The value to return if the label is missing
      * @return The label. If missing from the source string, the {@code fallback} value is returned
      */
     public static String extractLabel(String value, String fallback) {
