@@ -76,6 +76,9 @@ public class Main {
         if (runArguments.normalizeMarkup() != null) {
             anyDiff.normalize(runArguments.normalizeMarkup());
         }
+        if (runArguments.handleErrorPages() != null) {
+            anyDiff.handleErrorPages(runArguments.handleErrorPages());
+        }
         if (runArguments.ignoreSpaces() != null) {
             anyDiff.ignoreSpaces(runArguments.ignoreSpaces());
         }

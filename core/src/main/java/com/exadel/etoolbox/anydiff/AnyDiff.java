@@ -36,6 +36,7 @@ import java.util.Map;
  * @see DiffEntry
  * @see Filter
  */
+@SuppressWarnings("UnusedReturnValue")
 public class AnyDiff {
 
     private String[] leftStrings;
@@ -48,7 +49,7 @@ public class AnyDiff {
     private Boolean arrangeAttributes;
     private ContentType contentType;
     private Integer columnWidth;
-    private Boolean renderErrors;
+    private Boolean handleErrorPages;
     private Boolean ignoreSpaces;
     private Boolean normalize;
     private List<Filter> filters;
@@ -264,8 +265,13 @@ public class AnyDiff {
         return this;
     }
 
-    public AnyDiff displayErrorPages(boolean value) {
-        this.renderErrors = value;
+    /**
+     * Assigns the flag telling whether to render HTTP error code pages in the comparison report
+     * @param value Boolean value
+     * @return This instance
+     */
+    public AnyDiff handleErrorPages(boolean value) {
+        this.handleErrorPages = value;
         return this;
     }
 
@@ -322,7 +328,7 @@ public class AnyDiff {
                 .builder()
                 .arrangeAttributes(arrangeAttributes)
                 .columnWidth(columnWidth)
-                .renderErrors(renderErrors)
+                .handleErrorPages(handleErrorPages)
                 .normalize(normalize)
                 .ignoreSpaces(ignoreSpaces)
                 .preprocessors(preprocessors)
@@ -337,7 +343,7 @@ public class AnyDiff {
 
     /**
      * Checks if the left and right sides of the comparison do not have pending differences. Either there are no
-     * differences or all differences have been filtered out or else accepted as passable
+     * differences, or all differences have been filtered out or else accepted as passable
      * @return True or false
      */
     public boolean isMatch() {
@@ -351,7 +357,7 @@ public class AnyDiff {
 
     /**
      * Checks if the specified list of {@link Diff} objects does not have pending differences. Either there are no
-     * differences or all differences have been filtered out or else accepted as passable
+     * differences, or all differences have been filtered out or else accepted as passable
      * @param value A list of {@code Diff} objects
      * @return True or false
      */

@@ -45,6 +45,33 @@ public interface DiffEntry extends Adaptable {
      */
     DiffState getState();
 
+    /**
+     * Gets whether the difference is a change. This is a shortcut method that can be used instead of inquiring the
+     * {@link #getState()}
+     * @return True or false
+     */
+    default boolean isChange() {
+        return getState() == DiffState.CHANGE;
+    }
+
+    /**
+     * Gets whether the difference is a deletion. This is a shortcut method that can be used instead of inquiring the
+     * {@link #getState()}
+     * @return True or false
+     */
+    default boolean isDelete() {
+        return getState() == DiffState.RIGHT_MISSING;
+    }
+
+    /**
+     * Gets whether the difference is an insertion. This is a shortcut method that can be used instead of inquiring the
+     * {@link #getState()}
+     * @return True or false
+     */
+    default boolean isInsert() {
+        return getState() == DiffState.LEFT_MISSING;
+    }
+
     /* -------
        Content
        ------- */

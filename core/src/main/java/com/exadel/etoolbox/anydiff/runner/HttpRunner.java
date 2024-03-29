@@ -63,7 +63,7 @@ class HttpRunner extends DiffRunner {
 
     @Override
     public List<Diff> runInternal() {
-        Pair<HttpResult, HttpResult> httpResults = getHttpResults(leftUri, rightUri, getTaskParameters().displayErrorPages());
+        Pair<HttpResult, HttpResult> httpResults = getHttpResults(leftUri, rightUri, getTaskParameters().handleErrorPages());
         ContentType contentType = getCommonTypeOrDefault(httpResults.getLeft(), httpResults.getRight(), getContentType());
         Object leftContent = contentType != ContentType.UNDEFINED
             ? httpResults.getLeft().getContent()
