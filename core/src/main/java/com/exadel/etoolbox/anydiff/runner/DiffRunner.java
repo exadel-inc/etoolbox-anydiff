@@ -69,7 +69,7 @@ public abstract class DiffRunner {
      * Gets the parameters that control the execution of a {@link DiffTask}
      */
     @Getter(value = AccessLevel.PACKAGE)
-    private TaskParameters taskParameters;
+    private TaskParameters taskParameters = TaskParameters.DEFAULT;
 
     /* ----------
        Properties

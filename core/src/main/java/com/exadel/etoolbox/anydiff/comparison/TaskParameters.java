@@ -47,7 +47,7 @@ public class TaskParameters {
             .ignoreSpaces(false)
             .build();
 
-    static final TaskParameters DEFAULT = FOR_TEXT;
+    public static final TaskParameters DEFAULT = FOR_TEXT;
 
     private static final int MIN_COLUMN_WIDTH = 10;
 
