@@ -14,6 +14,8 @@
 package com.exadel.etoolbox.anydiff;
 
 import com.exadel.etoolbox.anydiff.comparison.TaskParameters;
+import com.exadel.etoolbox.anydiff.comparison.postprocessor.Postprocessor;
+import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffEntry;
 import com.exadel.etoolbox.anydiff.filter.Filter;
@@ -24,7 +26,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Compares two sets of values and returns a list of differences
@@ -48,6 +52,9 @@ public class AnyDiff {
     private Boolean ignoreSpaces;
     private Boolean normalize;
     private List<Filter> filters;
+
+    private Map<ContentType, Preprocessor> preprocessors;
+    private Map<ContentType, Postprocessor> postprocessors;
 
     /* -------
        Strings
@@ -282,6 +289,22 @@ public class AnyDiff {
         return this;
     }
 
+    public AnyDiff preprocessor(ContentType contentType, Preprocessor value) {
+        if (this.preprocessors == null) {
+            this.preprocessors = new EnumMap<>(ContentType.class);
+        }
+        this.preprocessors.put(contentType, value);
+        return this;
+    }
+
+    public AnyDiff postprocessor(ContentType contentType, Postprocessor value) {
+        if (this.postprocessors == null) {
+            this.postprocessors = new EnumMap<>(ContentType.class);
+        }
+        this.postprocessors.put(contentType, value);
+        return this;
+    }
+
     /* -------
        Actions
        ------- */
@@ -302,6 +325,8 @@ public class AnyDiff {
                 .renderErrors(renderErrors)
                 .normalize(normalize)
                 .ignoreSpaces(ignoreSpaces)
+                .preprocessors(preprocessors)
+                .postprocessors(postprocessors)
                 .build();
         return diffRunner
                 .withFilters(filters)
