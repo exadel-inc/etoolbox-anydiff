@@ -15,9 +15,14 @@ package com.exadel.etoolbox.anydiff.comparison;
 
 import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.ContentType;
+import com.exadel.etoolbox.anydiff.comparison.postprocessor.Postprocessor;
+import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.apache.commons.collections4.MapUtils;
+
+import java.util.Map;
 
 /**
  * Contains the parameters that control the execution of a {@link DiffTask}. Every parameter is optional and therefore
@@ -55,6 +60,10 @@ public class TaskParameters {
     private Boolean ignoreSpaces;
 
     private Boolean normalize;
+
+    private Map<ContentType, Preprocessor> preprocessors;
+
+    private Map<ContentType, Postprocessor> postprocessors;
 
     /**
      * Gets whether to uniformly arrange tag attributes in markup content (such as an HTML or XML file)
@@ -97,6 +106,22 @@ public class TaskParameters {
     }
 
     /**
+     * Gets the map of preprocessors to be applied to the content before comparison
+     * @return {@code Map} instance
+     */
+    public Map<ContentType, Preprocessor> getPreprocessors() {
+        return MapUtils.emptyIfNull(preprocessors);
+    }
+
+    /**
+     * Gets the map of postprocessors to be applied to the content after comparison
+     * @return {@code Map} instance
+     */
+    public Map<ContentType, Postprocessor> getPostprocessors() {
+        return MapUtils.emptyIfNull(postprocessors);
+    }
+
+    /**
      * Retrieves an instance of {@link TaskParameters} composed of non-null values of both the provided arguments. If
      * both arguments contain a non-null value, the second one will override
      * @param first {@code TaskParameters} object
@@ -117,6 +142,8 @@ public class TaskParameters {
                 .handleErrorPages(second.handleErrorPages != null ? second.handleErrorPages : first.handleErrorPages)
                 .ignoreSpaces(second.ignoreSpaces != null ? second.ignoreSpaces : first.ignoreSpaces)
                 .normalize(second.normalize != null ? second.normalize : first.normalize)
+                .preprocessors(MapUtils.isNotEmpty(second.preprocessors) ? second.preprocessors : first.preprocessors)
+                .postprocessors(MapUtils.isNotEmpty(second.postprocessors) ? second.postprocessors : first.postprocessors)
                 .build();
     }
 
@@ -128,7 +155,9 @@ public class TaskParameters {
                 && value.columnWidth == null
                 && value.handleErrorPages == null
                 && value.ignoreSpaces == null
-                && value.normalize == null;
+                && value.normalize == null
+                && MapUtils.isEmpty(value.preprocessors)
+                && MapUtils.isEmpty(value.postprocessors);
     }
 
     /* -------------

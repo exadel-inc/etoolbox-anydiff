@@ -60,6 +60,10 @@ public abstract class Preprocessor implements UnaryOperator<String> {
         if (type == null) {
             return BASIC;
         }
+        Preprocessor custom = parameters.getPreprocessors().get(type);
+        if (custom != null) {
+            return custom;
+        }
         switch (type) {
             case HTML:
                 return parameters.normalize() ? new HtmlPreprocessor(parameters) : BASIC;

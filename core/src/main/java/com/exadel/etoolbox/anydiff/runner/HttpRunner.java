@@ -40,6 +40,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +221,7 @@ class HttpRunner extends DiffRunner {
     private static ClassicHttpRequest getRequest(String uri, String userInfo, Map<String, String> headers) {
         HttpGet request = new HttpGet(uri);
         if (StringUtils.isNotBlank(userInfo)) {
-            request.setHeader(HttpHeaders.AUTHORIZATION, userInfo);
+            request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(userInfo.getBytes()));
         }
         headers.forEach(request::setHeader);
         return request;
