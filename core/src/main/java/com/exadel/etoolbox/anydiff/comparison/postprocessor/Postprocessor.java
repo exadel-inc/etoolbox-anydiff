@@ -33,6 +33,10 @@ public abstract class Postprocessor implements UnaryOperator<List<DiffRow>> {
      * @return {@code Postprocessor} instance
      */
     public static Postprocessor forType(ContentType type, TaskParameters parameters) {
+        Postprocessor custom = parameters.getPostprocessors().get(type);
+        if (custom != null) {
+            return custom;
+        }
         if ((type == ContentType.XML || type == ContentType.HTML) && parameters.normalize()) {
             return new XmlPostprocessor(parameters);
         }

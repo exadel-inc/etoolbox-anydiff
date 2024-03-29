@@ -41,6 +41,9 @@ class PathUtil {
     static String getPath(List<DiffRow> allRows, int position) {
         StringBuilder pathBuilder = new StringBuilder();
         SidedPosition tagPosition = getPrecedingTagPosition(allRows, position);
+        if (!tagPosition.isValid()) {
+            return StringUtils.EMPTY;
+        }
         String tagName = getTagNameAt(allRows, tagPosition);
         int tagIndent = getIndentAt(allRows, tagPosition);
         int tagIndex = getSiblingIndex(allRows, tagPosition.stepBack(), tagName, tagIndent);

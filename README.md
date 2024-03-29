@@ -61,6 +61,8 @@ Use `--arrange (true|false)` (or `-a (true|false)`) to control comparison of mar
 
 Use `--normalize (true|false)` (or `-n (true|false)`) to control whether the program re-formats markup files (XML, HTML) before comparison for more accurate and granular results. Default is _true_.
 
+Use `--handle-errorpages (true|false)` (or `-e (true|false)`) to control whether the program should handle error pages (HTTP status 4xx, 5xx) as "normal" pages with comparable markup. Default is _false_ which means that the error is reported instead of comparing content.
+
 Use `--ignore-spaces` (or `-i`) to make the comparison neglect the number of spaces between words. Default is _false_.
 Please note: this setting is partially overlapped by `normalize` and `arrange` because preparing perfectly aligned markup trees leads to many empty lines and indentations removed. In markup files ignoring spaces mostly relates to text nodes and literals. In non-markup files it is more universal.
 
@@ -69,20 +71,34 @@ Please note: this setting is partially overlapped by `normalize` and `arrange` b
 The same features are available via the Java API. The usual entry point is the [Comparator](./core/src/main/java/com/exadel/etoolbox/anydiff/Comparator.java) class which may be used as follows:
 
 ```
-import com.exadel.etoolbox.anydiff.Comparator;
-import com.exadel.etoolbox.anydiff.diff.Diff;
-
 class Main {
     // ...
-    List<Diff> differences = new Comparator()
+    List<Diff> differences = new AnyDiff()
         .left("path/to/file.html")
         .right("/path/to/another/file.html")
         .compare();
-    if (Comparator.isMatch(differences)) {
+    if (AnyDiff.isMatch(differences)) {
        // ...
     }
 }
 ```
+
+To use Java API, add the following dependency to your Maven project:
+```
+<dependency>
+    <groupId>com.exadel.etoolbox</groupId>
+    <artifactId>etoolbox-anydiff-core</artifactId>
+    <version>1.0.0</version> <!-- always prefer the latest stable version -->
+</dependency>
+```
+
+#### Features that are available only via Java API
+
+Some features are available only via Java API. They are:
+- _preprocessor_ - the ability to specify a routine that will be applied to the content before comparison. This is useful when you need to remove or replace some parts of the content that are not essential or else apply specific formatting (e.g., split into shorter lines);
+- _postprocessor_ - the ability to specify a routine that will be applied to the differences after comparison. This is useful when you need to revert the changes introduced by a preprocessor apply or otherwise reformat the already compared content.
+
+Please see documentation on [AnyDiff utility](./core/src/main/java/com/exadel/etoolbox/anydiff/AnyDiff.java) for more details.
 
 ### Diff filters
 

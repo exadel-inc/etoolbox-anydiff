@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpEntityContainer;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.net.URIBuilder;
 
@@ -39,6 +40,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,7 @@ class HttpRunner extends DiffRunner {
 
     @Override
     public List<Diff> runInternal() {
-        Pair<HttpResult, HttpResult> httpResults = getHttpResults(leftUri, rightUri);
+        Pair<HttpResult, HttpResult> httpResults = getHttpResults(leftUri, rightUri, getTaskParameters().handleErrorPages());
         ContentType contentType = getCommonTypeOrDefault(httpResults.getLeft(), httpResults.getRight(), getContentType());
         Object leftContent = contentType != ContentType.UNDEFINED
             ? httpResults.getLeft().getContent()
@@ -104,9 +106,9 @@ class HttpRunner extends DiffRunner {
         return result != ContentType.UNDEFINED ? result : defaultType;
     }
 
-    private static Pair<HttpResult, HttpResult> getHttpResults(String leftUri, String rightUri) {
-        CompletableFuture<HttpResult> leftPromise = getFutureHttpResult(leftUri);
-        CompletableFuture<HttpResult> rightPromise = getFutureHttpResult(rightUri);
+    private static Pair<HttpResult, HttpResult> getHttpResults(String leftUri, String rightUri, boolean handleErrorPages) {
+        CompletableFuture<HttpResult> leftPromise = getFutureHttpResult(leftUri, handleErrorPages);
+        CompletableFuture<HttpResult> rightPromise = getFutureHttpResult(rightUri, handleErrorPages);
         CompletableFuture.allOf(leftPromise, rightPromise).join();
         HttpResult leftContent = null;
         HttpResult rightContent = null;
@@ -123,12 +125,12 @@ class HttpRunner extends DiffRunner {
         return Pair.of(leftContent, rightContent);
     }
 
-    private static CompletableFuture<HttpResult> getFutureHttpResult(String uri) {
+    private static CompletableFuture<HttpResult> getFutureHttpResult(String uri, boolean handleErrorPages) {
         URIBuilder uriBuilder = getUriBuilder(uri);
         Map<String, String> requestOptions = getRequestOptions(uriBuilder);
         HttpClient client = getHttpClient(requestOptions);
         requestOptions.remove(PROPERTY_TRUST_SSL.substring(1));
-        return CompletableFuture.supplyAsync(() -> getHttpResult(client, uriBuilder, requestOptions));
+        return CompletableFuture.supplyAsync(() -> getHttpResult(client, uriBuilder, requestOptions, handleErrorPages));
     }
 
     private static URIBuilder getUriBuilder(String uri) {
@@ -160,7 +162,12 @@ class HttpRunner extends DiffRunner {
         return HttpClientFactory.newClient(trustSsl);
     }
 
-    private static HttpResult getHttpResult(HttpClient client, URIBuilder uriBuilder, Map<String, String> requestOptions) {
+    private static HttpResult getHttpResult(
+        HttpClient client,
+        URIBuilder uriBuilder,
+        Map<String, String> requestOptions,
+        boolean handleErrorPages) {
+
         if (uriBuilder == null) {
             return new HttpResult(null);
         }
@@ -183,19 +190,26 @@ class HttpRunner extends DiffRunner {
             stopWatch.stop();
             log.info("Download from {} completed in {} ms", uriBuilder, stopWatch.getTime(TimeUnit.MILLISECONDS));
             entity = response instanceof HttpEntityContainer ? ((HttpEntityContainer) response).getEntity() : null;
-            return entity != null
+            return entity != null && (handleErrorPages || response.getCode() == HttpStatus.SC_OK)
                     ? new HttpResult(
                         uriBuilder,
                         entity.getContentType(),
                         IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8))
-                    : null;
+                    : new HttpResult(uriBuilder);
         } catch (IOException e) {
-            stopWatch.stop();
-            log.error(
+            if (stopWatch.isStarted()) {
+                stopWatch.stop();
+                log.error(
                     "Download from {} failed after {} ms: {}",
                     uriBuilder,
                     stopWatch.getTime(TimeUnit.MILLISECONDS),
                     e.getMessage());
+            } else {
+                log.error(
+                    "Content extraction from {} failed: {}",
+                    uriBuilder,
+                    e.getMessage());
+            }
             return new HttpResult(uriBuilder);
         } finally {
             EntityUtils.consumeQuietly(entity);
@@ -207,7 +221,7 @@ class HttpRunner extends DiffRunner {
     private static ClassicHttpRequest getRequest(String uri, String userInfo, Map<String, String> headers) {
         HttpGet request = new HttpGet(uri);
         if (StringUtils.isNotBlank(userInfo)) {
-            request.setHeader(HttpHeaders.AUTHORIZATION, userInfo);
+            request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(userInfo.getBytes()));
         }
         headers.forEach(request::setHeader);
         return request;

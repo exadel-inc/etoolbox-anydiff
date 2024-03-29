@@ -14,6 +14,8 @@
 package com.exadel.etoolbox.anydiff;
 
 import com.exadel.etoolbox.anydiff.comparison.TaskParameters;
+import com.exadel.etoolbox.anydiff.comparison.postprocessor.Postprocessor;
+import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffEntry;
 import com.exadel.etoolbox.anydiff.filter.Filter;
@@ -24,7 +26,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Compares two sets of values and returns a list of differences
@@ -32,6 +36,7 @@ import java.util.List;
  * @see DiffEntry
  * @see Filter
  */
+@SuppressWarnings("UnusedReturnValue")
 public class AnyDiff {
 
     private String[] leftStrings;
@@ -44,9 +49,13 @@ public class AnyDiff {
     private Boolean arrangeAttributes;
     private ContentType contentType;
     private Integer columnWidth;
+    private Boolean handleErrorPages;
     private Boolean ignoreSpaces;
     private Boolean normalize;
     private List<Filter> filters;
+
+    private Map<ContentType, Preprocessor> preprocessors;
+    private Map<ContentType, Postprocessor> postprocessors;
 
     /* -------
        Strings
@@ -257,6 +266,16 @@ public class AnyDiff {
     }
 
     /**
+     * Assigns the flag telling whether to render HTTP error code pages in the comparison report
+     * @param value Boolean value
+     * @return This instance
+     */
+    public AnyDiff handleErrorPages(boolean value) {
+        this.handleErrorPages = value;
+        return this;
+    }
+
+    /**
      * Assigns the flag telling whether to ignore spaces between words in comparison
      * @param value Boolean value
      * @return This instance
@@ -273,6 +292,36 @@ public class AnyDiff {
      */
     public AnyDiff normalize(boolean value) {
         this.normalize = value;
+        return this;
+    }
+
+    /**
+     * Assigns a preprocessor for the compared content. A preprocessor is used to modify content or apply additional
+     * formatting before the comparison starts
+     * @param contentType A {@link ContentType} value that represents the type of content to preprocess
+     * @param value A {@link Preprocessor} object to use for the processing
+     * @return This instance
+     */
+    public AnyDiff preprocessor(ContentType contentType, Preprocessor value) {
+        if (this.preprocessors == null) {
+            this.preprocessors = new EnumMap<>(ContentType.class);
+        }
+        this.preprocessors.put(contentType, value);
+        return this;
+    }
+
+    /**
+     * Assigns a postprocessor for the compared content. A postprocessor is used to revert modifications made by a
+     * preprocessor or otherwise change the content before displaying the diff
+     * @param contentType A {@link ContentType} value that represents the type of content to post-process
+     * @param value A {@link Postprocessor} object to use for the processing
+     * @return This instance
+     */
+    public AnyDiff postprocessor(ContentType contentType, Postprocessor value) {
+        if (this.postprocessors == null) {
+            this.postprocessors = new EnumMap<>(ContentType.class);
+        }
+        this.postprocessors.put(contentType, value);
         return this;
     }
 
@@ -293,8 +342,11 @@ public class AnyDiff {
                 .builder()
                 .arrangeAttributes(arrangeAttributes)
                 .columnWidth(columnWidth)
+                .handleErrorPages(handleErrorPages)
                 .normalize(normalize)
                 .ignoreSpaces(ignoreSpaces)
+                .preprocessors(preprocessors)
+                .postprocessors(postprocessors)
                 .build();
         return diffRunner
                 .withFilters(filters)
@@ -305,7 +357,7 @@ public class AnyDiff {
 
     /**
      * Checks if the left and right sides of the comparison do not have pending differences. Either there are no
-     * differences or all differences have been filtered out or else accepted as passable
+     * differences, or all differences have been filtered out or else accepted as passable
      * @return True or false
      */
     public boolean isMatch() {
@@ -319,7 +371,7 @@ public class AnyDiff {
 
     /**
      * Checks if the specified list of {@link Diff} objects does not have pending differences. Either there are no
-     * differences or all differences have been filtered out or else accepted as passable
+     * differences, or all differences have been filtered out or else accepted as passable
      * @param value A list of {@code Diff} objects
      * @return True or false
      */

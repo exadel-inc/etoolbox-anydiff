@@ -42,6 +42,7 @@ class RunArguments {
 
     private static final String ARGUMENT_ARRANGE = "arrange";
     private static final String ARGUMENT_FILTERS = "filters";
+    private static final String ARGUMENT_HANDLE_ERRORS = "handle-errorpages";
     private static final String ARGUMENT_IGNORE_SPACES = "ignore-spaces";
     private static final String ARGUMENT_LEFT = "left";
     private static final String ARGUMENT_NORMALIZE = "normalize";
@@ -65,6 +66,12 @@ class RunArguments {
      * Gets the column width to use for the console and logfile output
      */
     private Integer columnWidth;
+
+    /**
+     * Gets whether to handle HTML error code pages as normal pages
+     */
+    @Accessors(fluent = true)
+    private Boolean handleErrorPages;
 
     /**
      * Gets whether to ignore spaces when comparing content
@@ -131,6 +138,7 @@ class RunArguments {
         result.filters = commandLine.getOptionValues(ARGUMENT_FILTERS) != null
                 ? Arrays.stream(commandLine.getOptionValues(ARGUMENT_FILTERS)).filter(StringUtils::isNotBlank).collect(Collectors.toList())
                 : Collections.emptyList();
+        result.handleErrorPages = getBooleanOptionValue(commandLine, ARGUMENT_HANDLE_ERRORS);
         result.ignoreSpaces = getBooleanOptionValue(commandLine, ARGUMENT_IGNORE_SPACES);
         result.left = Arrays
                 .stream(commandLine.getOptionValues(ARGUMENT_LEFT))
@@ -153,66 +161,72 @@ class RunArguments {
         Options options = new Options();
 
         options.addOption(
-                "a",
-                ARGUMENT_ARRANGE,
-                true,
-                "Arrange node attributes in markup content (default: " + Constants.DEFAULT_ARRANGE_ATTRIBUTES + ")");
+            "a",
+            ARGUMENT_ARRANGE,
+            true,
+            "Arrange node attributes in markup content (default: " + Constants.DEFAULT_ARRANGE_ATTRIBUTES + ")");
 
         Option filters = new Option(
-                "f",
-                ARGUMENT_FILTERS,
-                true,
-                "File or folder containing filters. Multiple values are supported");
+            "f",
+            ARGUMENT_FILTERS,
+            true,
+            "File or folder containing filters. Multiple values are supported");
         filters.setArgs(Option.UNLIMITED_VALUES);
         options.addOption(filters);
 
         options.addOption(
-                "i",
-                ARGUMENT_IGNORE_SPACES,
-                false,
-                "Ignore spaces when comparing text content");
+            "e",
+            ARGUMENT_HANDLE_ERRORS,
+            false,
+            "Handle HTTP error code pages as normal pages with markup");
+
+        options.addOption(
+            "i",
+            ARGUMENT_IGNORE_SPACES,
+            false,
+            "Ignore spaces when comparing text content");
 
         Option left = new Option(
-                "l",
-                ARGUMENT_LEFT,
-                true,
-                "Left part of comparison (a file name or an URL). Multiple values are supported");
+            "l",
+            ARGUMENT_LEFT,
+            true,
+            "Left part of comparison (a file name or a URL). Multiple values are supported");
         left.setArgs(Option.UNLIMITED_VALUES);
         left.setRequired(true);
         options.addOption(left);
 
         options.addOption(
-                "n",
-                ARGUMENT_NORMALIZE,
-                true,
-                "Normalize markup content before comparison (default: " + Constants.DEFAULT_NORMALIZE + ")");
+            "n",
+            ARGUMENT_NORMALIZE,
+            true,
+            "Normalize markup content before comparison (default: " + Constants.DEFAULT_NORMALIZE + ")");
 
         Option right = new Option(
-                "r",
-                ARGUMENT_RIGHT,
-                true,
-                "Right part of comparison (a file name or an URL). Multiple values are supported");
+            "r",
+            ARGUMENT_RIGHT,
+            true,
+            "Right part of comparison (a file name or a URL). Multiple values are supported");
         right.setArgs(Option.UNLIMITED_VALUES);
         right.setRequired(true);
         options.addOption(right);
 
         options.addOption(
-                "h",
-                ARGUMENT_SAVE_HTML,
-                false,
-                "Save comparison results as HTML");
+            "h",
+            ARGUMENT_SAVE_HTML,
+            false,
+            "Save comparison results as HTML");
 
         options.addOption(
-                "b",
-                ARGUMENT_SHOW_IN_BROWSER,
-                false,
-                "Display comparison results in browser. If you set this flag, you enable \"Save HTML\" as well");
+            "b",
+            ARGUMENT_SHOW_IN_BROWSER,
+            false,
+            "Display comparison results in the browser. If you set this flag, you enable \"Save HTML\" as well");
 
         options.addOption(
-                "w",
-                ARGUMENT_WIDTH,
-                true,
-                "Output: Column width in console/log (default: " + Constants.DEFAULT_COLUMN_WIDTH + " chars)");
+            "w",
+            ARGUMENT_WIDTH,
+            true,
+            "Output: Column width in console/log (default: " + Constants.DEFAULT_COLUMN_WIDTH + " chars)");
 
         return options;
     }
@@ -225,6 +239,7 @@ class RunArguments {
         return Boolean.parseBoolean(rawValue);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Integer getIntegerOptionValue(CommandLine commandLine, String name) {
         String rawValue = commandLine.getOptionValue(name);
         if (!StringUtils.isNumeric(rawValue)) {
