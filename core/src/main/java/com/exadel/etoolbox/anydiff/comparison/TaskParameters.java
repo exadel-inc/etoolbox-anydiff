@@ -50,7 +50,7 @@ public class TaskParameters {
 
     private Integer columnWidth;
 
-    private Boolean renderErrors;
+    private Boolean handleErrorPages;
 
     private Boolean ignoreSpaces;
 
@@ -64,12 +64,17 @@ public class TaskParameters {
         return arrangeAttributes != null ? arrangeAttributes : Constants.DEFAULT_ARRANGE_ATTRIBUTES;
     }
 
-    public boolean displayErrorPages() {
-        return renderErrors != null ? renderErrors : true;
+    /**
+     * Gets whether to handle HTTP error code pages as "normal" pages with markup. If not, the content of such pages
+     * is ignored
+     * @return True or false
+     */
+    public boolean handleErrorPages() {
+        return handleErrorPages != null ? handleErrorPages : true;
     }
 
     /**
-     * Gets the width of content column in side-by-side comparison log
+     * Gets the width of a content column in the side-by-side comparison log
      */
     public int getColumnWidth() {
         return columnWidth != null && columnWidth >= MIN_COLUMN_WIDTH ? columnWidth : Constants.DEFAULT_COLUMN_WIDTH;
@@ -92,7 +97,7 @@ public class TaskParameters {
     }
 
     /**
-     * Retrieves an instance of {@link TaskParameters} composed of non-null values of the both provided arguments. If
+     * Retrieves an instance of {@link TaskParameters} composed of non-null values of both the provided arguments. If
      * both arguments contain a non-null value, the second one will override
      * @param first {@code TaskParameters} object
      * @param second {@code TaskParameters} object
@@ -109,7 +114,7 @@ public class TaskParameters {
                 .builder()
                 .arrangeAttributes(second.arrangeAttributes != null ? second.arrangeAttributes : first.arrangeAttributes)
                 .columnWidth(second.columnWidth != null ? second.columnWidth : first.columnWidth)
-                .renderErrors(second.renderErrors != null ? second.renderErrors : first.renderErrors)
+                .handleErrorPages(second.handleErrorPages != null ? second.handleErrorPages : first.handleErrorPages)
                 .ignoreSpaces(second.ignoreSpaces != null ? second.ignoreSpaces : first.ignoreSpaces)
                 .normalize(second.normalize != null ? second.normalize : first.normalize)
                 .build();
@@ -121,7 +126,7 @@ public class TaskParameters {
         }
         return value.arrangeAttributes == null
                 && value.columnWidth == null
-                && value.renderErrors == null
+                && value.handleErrorPages == null
                 && value.ignoreSpaces == null
                 && value.normalize == null;
     }
