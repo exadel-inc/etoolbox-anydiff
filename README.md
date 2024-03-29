@@ -61,6 +61,8 @@ Use `--arrange (true|false)` (or `-a (true|false)`) to control comparison of mar
 
 Use `--normalize (true|false)` (or `-n (true|false)`) to control whether the program re-formats markup files (XML, HTML) before comparison for more accurate and granular results. Default is _true_.
 
+Use `--handle-errorpages (true|false)` (or `-e (true|false)`) to control whether the program should handle error pages (HTTP status 4xx, 5xx) as "normal" pages with comparable markup. Default is _false_ which means that the error is reported instead of comparing content.
+
 Use `--ignore-spaces` (or `-i`) to make the comparison neglect the number of spaces between words. Default is _false_.
 Please note: this setting is partially overlapped by `normalize` and `arrange` because preparing perfectly aligned markup trees leads to many empty lines and indentations removed. In markup files ignoring spaces mostly relates to text nodes and literals. In non-markup files it is more universal.
 
