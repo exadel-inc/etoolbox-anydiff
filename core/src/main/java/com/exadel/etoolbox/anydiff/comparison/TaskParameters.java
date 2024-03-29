@@ -50,6 +50,8 @@ public class TaskParameters {
 
     private Integer columnWidth;
 
+    private Boolean renderErrors;
+
     private Boolean ignoreSpaces;
 
     private Boolean normalize;
@@ -60,6 +62,10 @@ public class TaskParameters {
      */
     public boolean arrangeAttributes() {
         return arrangeAttributes != null ? arrangeAttributes : Constants.DEFAULT_ARRANGE_ATTRIBUTES;
+    }
+
+    public boolean displayErrorPages() {
+        return renderErrors != null ? renderErrors : true;
     }
 
     /**
@@ -103,6 +109,7 @@ public class TaskParameters {
                 .builder()
                 .arrangeAttributes(second.arrangeAttributes != null ? second.arrangeAttributes : first.arrangeAttributes)
                 .columnWidth(second.columnWidth != null ? second.columnWidth : first.columnWidth)
+                .renderErrors(second.renderErrors != null ? second.renderErrors : first.renderErrors)
                 .ignoreSpaces(second.ignoreSpaces != null ? second.ignoreSpaces : first.ignoreSpaces)
                 .normalize(second.normalize != null ? second.normalize : first.normalize)
                 .build();
@@ -114,6 +121,7 @@ public class TaskParameters {
         }
         return value.arrangeAttributes == null
                 && value.columnWidth == null
+                && value.renderErrors == null
                 && value.ignoreSpaces == null
                 && value.normalize == null;
     }

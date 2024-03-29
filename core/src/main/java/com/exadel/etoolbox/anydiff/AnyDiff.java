@@ -44,6 +44,7 @@ public class AnyDiff {
     private Boolean arrangeAttributes;
     private ContentType contentType;
     private Integer columnWidth;
+    private Boolean renderErrors;
     private Boolean ignoreSpaces;
     private Boolean normalize;
     private List<Filter> filters;
@@ -256,6 +257,11 @@ public class AnyDiff {
         return this;
     }
 
+    public AnyDiff displayErrorPages(boolean value) {
+        this.renderErrors = value;
+        return this;
+    }
+
     /**
      * Assigns the flag telling whether to ignore spaces between words in comparison
      * @param value Boolean value
@@ -293,6 +299,7 @@ public class AnyDiff {
                 .builder()
                 .arrangeAttributes(arrangeAttributes)
                 .columnWidth(columnWidth)
+                .renderErrors(renderErrors)
                 .normalize(normalize)
                 .ignoreSpaces(ignoreSpaces)
                 .build();
