@@ -84,6 +84,7 @@ public class TaskParameters {
 
     /**
      * Gets the width of a content column in the side-by-side comparison log
+     * @return Integer value
      */
     public int getColumnWidth() {
         return columnWidth != null && columnWidth >= MIN_COLUMN_WIDTH ? columnWidth : Constants.DEFAULT_COLUMN_WIDTH;
