@@ -57,11 +57,13 @@ line {
 }
 
 line.header {
-    padding: 1rem 0 1.4rem 0;
+    padding: 0.5rem 0 1rem 0;
 }
 
 line.header > div {
-    text-align: center;
+    color: #C0C0C0;
+    font-size: 0.95rem;
+    font-weight: bold;
 }
 
 line:not(.header) {
@@ -79,6 +81,7 @@ section:not(.no-highlight) line:not(.header):nth-child(even) > .right {
 }
 
 line.ellipsis {
+    color: #909090;
     justify-content: center;
 }
 
