@@ -16,6 +16,7 @@ package com.exadel.etoolbox.anydiff.comparison;
 import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.OutputType;
 import com.exadel.etoolbox.anydiff.diff.DiffState;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;

@@ -20,6 +20,7 @@ import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffEntry;
 import com.exadel.etoolbox.anydiff.diff.DiffState;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.Builder;
