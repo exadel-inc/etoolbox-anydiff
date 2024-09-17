@@ -35,8 +35,9 @@ public class Constants {
 
     public static final String AT = "@";
     public static final String COLON = ":";
-    public static final char COLON_CHAR = ':';
+    public static final char COLON_CHAR = COLON.charAt(0);
     public static final String COMMA = ",";
+    public static final char COMMA_CHAR = COMMA.charAt(0);
     public static final char DASH_CHAR = '-';
     public static final String DOT = ".";
     public static final String ELLIPSIS = "...";
@@ -44,8 +45,9 @@ public class Constants {
     public static final String HASH = "#";
     public static final String PIPE = "|";
     public static final String QUOTE = "\"";
+    public static final char QUOTE_CHAR = QUOTE.charAt(0);
     public static final String SLASH = "/";
-    public static final char SLASH_CHAR = '/';
+    public static final char SLASH_CHAR = SLASH.charAt(0);
     public static final char UNDERSCORE_CHAR = '_';
 
     public static final String ATTR_HREF = "href";

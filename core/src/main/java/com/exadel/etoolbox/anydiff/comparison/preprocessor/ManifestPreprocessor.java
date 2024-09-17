@@ -14,10 +14,10 @@
 package com.exadel.etoolbox.anydiff.comparison.preprocessor;
 
 import com.exadel.etoolbox.anydiff.Constants;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.internal.StringUtil;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -39,7 +39,7 @@ class ManifestPreprocessor extends Preprocessor {
 
     @Override
     public String apply(String value) {
-        if (StringUtil.isBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             return value;
         }
         LineProcessor processor = new LineProcessor();
@@ -114,7 +114,7 @@ class ManifestPreprocessor extends Preprocessor {
                 String key = StringUtils.substringBefore(line, Constants.COLON);
                 String value = StringUtils.substringAfter(line, Constants.COLON).trim();
                 if (value.contains(Constants.COMMA)) {
-                    List<String> valueList = Arrays.asList(StringUtils.split(value, Constants.COMMA));
+                    List<String> valueList = StringUtil.splitByUnescaped(value, Constants.COMMA_CHAR, Constants.QUOTE_CHAR);
                     valueList.sort(String::compareTo);
                     result.put(key, valueList);
                 } else {

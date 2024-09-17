@@ -162,6 +162,37 @@ public class StringUtil {
     }
 
     /**
+     * Splits the specified string by the specified delimiter, ignoring any occurrences of the delimiter that are
+     * situated between the specified escape characters
+     * @param value     The string to split
+     * @param delimiter The character to split by
+     * @param escapeChar The character to escape the delimiter
+     * @return A non-null list of chunks
+     */
+    public static List<String> splitByUnescaped(CharSequence value, char delimiter, char escapeChar) {
+        if (StringUtils.isEmpty(value)) {
+            return Collections.emptyList();
+        }
+        List<String> result = new ArrayList<>();
+        boolean isEscaped = false;
+        StringBuilder current = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c == escapeChar) {
+                isEscaped = !isEscaped;
+            }
+            if (c == delimiter && !isEscaped) {
+                result.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        result.add(current.toString().trim());
+        return result;
+    }
+
+    /**
      * Truncates the specified string to the given length by removing the middle part and replacing it with "{@code ...}"
      * @param value The string to truncate
      * @param limit The maximum length of the resulting string
