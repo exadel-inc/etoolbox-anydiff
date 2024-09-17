@@ -143,17 +143,17 @@ public enum Marker {
        Utility constants
        ----------------- */
 
-    static final String ELLIPSIS = "{{.}}";
-
     public static final String NEW_LINE = "{{n}}";
 
-    static final String[] TOKENS = new String[]{
+    public static final String[] TOKENS = new String[]{
             CONTEXT.toString(),
             DELETE.toString(),
             INSERT.toString(),
             PLACEHOLDER.toString(),
             RESET.toString()
     };
+
+    static final String ELLIPSIS = "{{.}}";
 
     /* -------
        Methods

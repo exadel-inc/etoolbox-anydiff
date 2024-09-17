@@ -15,6 +15,7 @@ package com.exadel.etoolbox.anydiff.comparison;
 
 import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.ContentType;
+import com.exadel.etoolbox.anydiff.comparison.path.PathHelper;
 import com.exadel.etoolbox.anydiff.comparison.postprocessor.Postprocessor;
 import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import com.exadel.etoolbox.anydiff.diff.Diff;
