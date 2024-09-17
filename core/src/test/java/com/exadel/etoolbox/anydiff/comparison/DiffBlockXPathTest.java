@@ -81,4 +81,27 @@ public class DiffBlockXPathTest {
             Assert.assertEquals("/catalog/items/item[2]", ((BlockImpl) diff.children().get(3)).getPath());
         }
     }
+
+    @Test
+    public void shouldReportManifestPath() throws IOException {
+        try (
+                InputStream leftInput = getClass().getResourceAsStream("/sample/left/mf/MANIFEST.MF");
+                InputStream rightInput = getClass().getResourceAsStream("/sample/right/mf/MANIFEST.MF")
+        ) {
+            Assert.assertNotNull(leftInput);
+            Assert.assertNotNull(rightInput);
+            String left = IOUtils.toString(leftInput, StandardCharsets.UTF_8);
+            String right = IOUtils.toString(rightInput, StandardCharsets.UTF_8);
+            Diff diff = DiffTask
+                    .builder()
+                    .leftContent(left)
+                    .rightContent(right)
+                    .contentType(ContentType.MANIFEST)
+                    .build()
+                    .run();
+            Assert.assertEquals(2, diff.children().size());
+            Assert.assertEquals("Import-Package", ((BlockImpl) diff.children().get(0)).getPath());
+            Assert.assertEquals("Private-Package", ((BlockImpl) diff.children().get(1)).getPath());
+        }
+    }
 }
