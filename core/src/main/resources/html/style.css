@@ -27,12 +27,9 @@ h4 {
 }
 
 h4 > span {
+    display: inline-block;
     color: #000;
-    flex: 1;
-}
-
-h4 > span.left {
-    text-align: right;
+    word-break: break-all;
 }
 
 h4 > span.center {
