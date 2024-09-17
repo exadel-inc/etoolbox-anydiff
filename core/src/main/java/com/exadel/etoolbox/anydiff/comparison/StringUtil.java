@@ -22,6 +22,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -144,7 +145,7 @@ class StringUtil {
     }
 
     /**
-     * Splits the specified string into lines. Note: this is a Java 8 method placeholder for {@link String#lines()}
+     * Splits the specified string into lines. Note: this is a Java 8 method placeholder for {@code String#lines()}
      * @param value The string to split
      * @return A non-null list of lines
      */
@@ -154,7 +155,7 @@ class StringUtil {
         }
         try (Reader reader = new StringReader(value.toString())) {
             return IOUtils.readLines(reader);
-        } catch (Exception e) {
+        } catch (IOException e) {
             return Collections.emptyList();
         }
     }
