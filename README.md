@@ -68,7 +68,7 @@ Please note: this setting is partially overlapped by `normalize` and `arrange` b
 
 ### Java API
 
-The same features are available via the Java API. The usual entry point is the [Comparator](./core/src/main/java/com/exadel/etoolbox/anydiff/Comparator.java) class which may be used as follows:
+The same features are available via the Java API. The usual entry point is the [AnyDiff](./core/src/main/java/com/exadel/etoolbox/anydiff/AnyDiff.java) class which may be used as follows:
 
 ```
 class Main {
@@ -96,9 +96,9 @@ To use Java API, add the following dependency to your Maven project:
 
 Some features are available only via Java API. They are:
 - _preprocessor_ - the ability to specify a routine that will be applied to the content before comparison. This is useful when you need to remove or replace some parts of the content that are not essential or else apply specific formatting (e.g., split into shorter lines);
-- _postprocessor_ - the ability to specify a routine that will be applied to the differences after comparison. This is useful when you need to revert the changes introduced by a preprocessor apply or otherwise reformat the already compared content.
+- _postprocessor_ - the ability to specify a routine that will be applied to the differences after comparison. This is useful when you need to revert the changes introduced by a preprocessor or otherwise reformat the already compared content.
 
-Please see documentation on [AnyDiff utility](./core/src/main/java/com/exadel/etoolbox/anydiff/AnyDiff.java) for more details.
+Please see JavaDocs in [AnyDiff class](./core/src/main/java/com/exadel/etoolbox/anydiff/AnyDiff.java) for more details.
 
 ### Diff filters
 
