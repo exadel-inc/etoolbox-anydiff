@@ -25,10 +25,13 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
+/**
+ * Pre-processes the Java manifest file content that needs to be compared
+ */
 @Slf4j
 class ManifestPreprocessor extends Preprocessor {
 
@@ -41,7 +44,7 @@ class ManifestPreprocessor extends Preprocessor {
         }
         LineProcessor processor = new LineProcessor();
         try (Reader reader = new StringReader(value)) {
-            IOUtils.readLines(reader).forEach(processor::nextLine);
+            IOUtils.readLines(reader).forEach(processor::consume);
         } catch (IOException e) {
             log.error("Error reading manifest content", e);
         }
@@ -60,11 +63,30 @@ class ManifestPreprocessor extends Preprocessor {
         return builder.toString();
     }
 
+    /**
+     * Extracts the sequence of manifest lines organized by section
+     */
     private static class LineProcessor {
+
+        private static final List<String> ORDERED_SECTIONS = Arrays.asList(
+            "Manifest-Version",
+            "Created-By",
+            "Build-Jdk-Spec",
+            "Bundle-Category",
+            "Bundle-Name",
+            "Bundle-SymbolicName",
+            "Bundle-Version",
+            "Bundle-ManifestVersion",
+            "Bundle-Description");
+
         private final List<String> lines = new ArrayList<>();
         private StringBuilder lineBuilder;
 
-        void nextLine(String value) {
+        /**
+         * Consumes another line of manifest content
+         * @param value String value; a non-null, non-empty string is expected
+         */
+        void consume(String value) {
             String stripped = StringUtils.strip(value, StringUtils.CR);
             if (stripped.startsWith(StringUtils.SPACE)) {
                 lineBuilder.append(stripped.substring(1));
@@ -76,11 +98,15 @@ class ManifestPreprocessor extends Preprocessor {
             }
         }
 
+        /**
+         * Gets the manifest lines organized by section
+         * @return A non-null map where keys are section names and values are lists of lines
+         */
         Map<String, List<String>> getLines() {
             if (lineBuilder != null && lineBuilder.length() > 0) {
                 lines.add(lineBuilder.toString());
             }
-            Map<String, List<String>> result = new LinkedHashMap<>();
+            Map<String, List<String>> result = new TreeMap<>(LineProcessor::sort);
             for (String line : lines) {
                 if (!line.contains(Constants.COLON)) {
                     continue;
@@ -96,6 +122,19 @@ class ManifestPreprocessor extends Preprocessor {
                 }
             }
             return result;
+        }
+
+        private static int sort(String first, String second) {
+            int firstIndex = ORDERED_SECTIONS.indexOf(first);
+            int secondIndex = ORDERED_SECTIONS.indexOf(second);
+            if (firstIndex >= 0 && secondIndex >= 0) {
+                return Integer.compare(firstIndex, secondIndex);
+            } else if (firstIndex >= 0) {
+                return -1;
+            } else if (secondIndex >= 0) {
+                return 1;
+            }
+            return first.compareTo(second);
         }
     }
 }
