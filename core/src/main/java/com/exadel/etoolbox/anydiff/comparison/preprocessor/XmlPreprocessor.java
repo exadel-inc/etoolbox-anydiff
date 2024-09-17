@@ -73,8 +73,6 @@ class XmlPreprocessor extends Preprocessor {
         DOCUMENT_BUILDER_FACTORY = factory;
     }
 
-    private static final String COLON = ":";
-
     private final TaskParameters parameters;
 
     @Override
@@ -214,9 +212,9 @@ class XmlPreprocessor extends Preprocessor {
             } else if (privilegedRankingSecond >= 0) {
                 return 1;
             }
-            if (first.contains(COLON) && !second.contains(COLON)) {
+            if (first.contains(Constants.COLON) && !second.contains(Constants.COLON)) {
                 return -1;
-            } else if (second.contains(COLON) && !first.contains(COLON)) {
+            } else if (second.contains(Constants.COLON) && !first.contains(Constants.COLON)) {
                 return 1;
             }
             return first.compareTo(second);

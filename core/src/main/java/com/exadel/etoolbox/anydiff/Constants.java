@@ -34,7 +34,9 @@ public class Constants {
     public static final int MAX_CONTEXT_LENGTH = 8;
 
     public static final String AT = "@";
+    public static final String COLON = ":";
     public static final char COLON_CHAR = ':';
+    public static final String COMMA = ",";
     public static final char DASH_CHAR = '-';
     public static final String DOT = ".";
     public static final String ELLIPSIS = "...";
