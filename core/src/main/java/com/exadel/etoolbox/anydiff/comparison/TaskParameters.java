@@ -47,6 +47,13 @@ public class TaskParameters {
             .ignoreSpaces(false)
             .build();
 
+    private static final TaskParameters FOR_STRUCTURED_TEXT = TaskParameters
+        .builder()
+        .arrangeAttributes(false)
+        .normalize(true)
+        .ignoreSpaces(false)
+        .build();
+
     public static final TaskParameters DEFAULT = FOR_TEXT;
 
     private static final int MIN_COLUMN_WIDTH = 10;
@@ -173,6 +180,9 @@ public class TaskParameters {
     static TaskParameters from(ContentType contentType) {
         if (contentType == ContentType.XML || contentType == ContentType.HTML) {
             return FOR_MARKUP;
+        }
+        if (contentType == ContentType.MANIFEST) {
+            return FOR_STRUCTURED_TEXT;
         }
         return FOR_TEXT;
     }

@@ -13,19 +13,18 @@
  */
 package com.exadel.etoolbox.anydiff.runner;
 
-import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.ContentType;
 import com.exadel.etoolbox.anydiff.comparison.DiffTask;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -128,8 +127,8 @@ class ArchiveRunner extends DiffRunner {
     }
 
     private static ContentType getTypeOrDefault(String path, ContentType defaultType) {
-        String extension = StringUtils.substringAfterLast(path, Constants.DOT);
-        ContentType result = ContentType.fromExtension(extension);
+        String name = Paths.get(path).getFileName().toString();
+        ContentType result = ContentType.fromFileName(name);
         return result != ContentType.UNDEFINED ? result : defaultType;
     }
 

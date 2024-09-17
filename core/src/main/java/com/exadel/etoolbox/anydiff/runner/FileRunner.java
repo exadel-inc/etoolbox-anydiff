@@ -13,7 +13,6 @@
  */
 package com.exadel.etoolbox.anydiff.runner;
 
-import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.ContentType;
 import com.exadel.etoolbox.anydiff.comparison.DiffTask;
 import com.exadel.etoolbox.anydiff.diff.Diff;
@@ -71,13 +70,14 @@ class FileRunner extends DiffRunner {
         if (commonContentTypeByMime != ContentType.UNDEFINED) {
             return commonContentTypeByMime;
         }
-        String leftExtension = StringUtils.substringAfterLast(left, Constants.DOT);
-        String rightExtension = StringUtils.substringAfterLast(right, Constants.DOT);
-        if (!StringUtils.equals(leftExtension, rightExtension)) {
+        String leftName = Paths.get(left).getFileName().toString();
+        ContentType byLeftName = ContentType.fromFileName(leftName);
+        String rightName = Paths.get(right).getFileName().toString();
+        ContentType byRightName = ContentType.fromFileName(rightName);
+        if (byLeftName != byRightName) {
             return defaultType;
         }
-        ContentType result = ContentType.fromExtension(leftExtension);
-        return result != ContentType.UNDEFINED ? result : defaultType;
+        return byLeftName != ContentType.UNDEFINED ? byLeftName : defaultType;
     }
 
     private static ContentType getCommonTypeByMime(String left, String right) {

@@ -93,17 +93,21 @@ class HttpRunner extends DiffRunner {
         if (!StringUtils.equals(leftContentType, rightContentType)) {
             return defaultType;
         }
-        ContentType result = ContentType.fromMimeType(leftContentType);
-        if (result != ContentType.UNDEFINED) {
-            return result;
+        ContentType byMimeType = ContentType.fromMimeType(leftContentType);
+        if (byMimeType != ContentType.UNDEFINED) {
+            return byMimeType;
         }
-        String leftExtension = StringUtils.substringAfterLast(left.getUri().getPath(), Constants.DOT);
-        String rightExtension = StringUtils.substringAfterLast(right.getUri().getPath(), Constants.DOT);
-        if (!StringUtils.equals(leftExtension, rightExtension) || StringUtils.isEmpty(leftExtension)) {
+        String leftName = StringUtils.substringAfterLast(left.getUri().getPath(), Constants.SLASH);
+        String rightName = StringUtils.substringAfterLast(right.getUri().getPath(), Constants.SLASH);
+        if (StringUtils.isAnyEmpty(leftName, rightName)) {
             return defaultType;
         }
-        result = ContentType.fromExtension(leftExtension);
-        return result != ContentType.UNDEFINED ? result : defaultType;
+        ContentType byLeftName = ContentType.fromFileName(leftName);
+        ContentType byRightName = ContentType.fromFileName(rightName);
+        if (byLeftName != byRightName) {
+            return defaultType;
+        }
+        return byLeftName != ContentType.UNDEFINED ? byLeftName : defaultType;
     }
 
     private static Pair<HttpResult, HttpResult> getHttpResults(String leftUri, String rightUri, boolean handleErrorPages) {
