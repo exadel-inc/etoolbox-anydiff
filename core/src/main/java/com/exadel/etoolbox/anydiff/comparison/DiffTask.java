@@ -193,21 +193,24 @@ public class DiffTask {
     }
 
     private String getContextPath(List<DiffRow> allRows, int position) {
-        if (contentType != ContentType.HTML && contentType != ContentType.XML) {
+        PathHelper pathHelper = PathHelper.forType(contentType);
+        if (pathHelper == null) {
             return StringUtils.EMPTY;
         }
-        return PathUtil.getPath(allRows, position);
+        return pathHelper.getPath(allRows, position);
     }
 
     private List<DiffRow> getLookbehindContext(List<DiffRow> allRows, int position) {
         if (position == 0) {
             return null;
         }
-        if (contentType != ContentType.HTML && contentType != ContentType.XML) {
+
+        PathHelper pathHelper = PathHelper.forType(contentType);
+        if (pathHelper == null) {
             return Collections.singletonList(allRows.get(position - 1));
         }
 
-        int nearestTagRowIndex = PathUtil.getPrecedingTagRowIndex(allRows, position - 1);
+        int nearestTagRowIndex = pathHelper.getPrecedingTagRowIndex(allRows, position - 1);
         if (nearestTagRowIndex >= 0) {
             return truncateContext(allRows.subList(nearestTagRowIndex, position));
         }
