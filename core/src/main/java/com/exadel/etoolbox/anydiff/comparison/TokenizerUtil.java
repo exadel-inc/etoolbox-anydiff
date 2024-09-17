@@ -27,7 +27,7 @@ import java.util.List;
  * Contains utility methods for splitting strings into tokens
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class SplitterUtil {
+class TokenizerUtil {
 
     /**
      * Splits the specified string into tokens for a more granular comparison

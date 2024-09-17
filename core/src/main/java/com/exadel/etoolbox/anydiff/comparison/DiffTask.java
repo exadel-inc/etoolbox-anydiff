@@ -140,7 +140,7 @@ public class DiffTask {
                 .oldTag(isStart -> isStart ? Marker.DELETE.toString() : Marker.RESET.toString())
                 .newTag(isStart -> isStart ? Marker.INSERT.toString() : Marker.RESET.toString())
                 .lineNormalizer(EMPTY_NORMALIZER) // One needs this to override the OOTB preprocessor that spoils HTML
-                .inlineDiffBySplitter(SplitterUtil::getTokens)
+                .inlineDiffBySplitter(TokenizerUtil::getTokens)
                 .build();
         String leftPreprocessed = getPreprocessor(leftId).apply(leftContent.toString());
         String rightPreprocessed = getPreprocessor(rightId).apply(rightContent.toString());
