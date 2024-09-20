@@ -150,7 +150,7 @@ public class StringUtil {
      * @param value The string to split
      * @return A non-null list of lines
      */
-    static List<String> splitByNewline(CharSequence value) {
+    public static List<String> splitByNewline(CharSequence value) {
         if (StringUtils.isEmpty(value) || StringUtils.equals(value, StringUtils.LF)) {
             return Collections.emptyList();
         }
