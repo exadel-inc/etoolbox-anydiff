@@ -53,4 +53,19 @@ public class PreprocessorsTest {
             Assert.assertEquals(prettyHtml, computedPrettyHtml);
         }
     }
+
+    @Test
+    public void shouldReformatManifest() throws IOException {
+        try (
+            InputStream rawInput = getClass().getResourceAsStream("/preprocessor/raw.mf");
+            InputStream prettyInput = getClass().getResourceAsStream("/preprocessor/pretty.mf")
+        ) {
+            Assert.assertNotNull(rawInput);
+            Assert.assertNotNull(prettyInput);
+            String rawMf = IOUtils.toString(rawInput, StandardCharsets.UTF_8);
+            String prettyMf = IOUtils.toString(prettyInput, StandardCharsets.UTF_8);
+            String computedPrettyMf = new ManifestPreprocessor().apply(rawMf);
+            Assert.assertEquals(prettyMf, computedPrettyMf);
+        }
+    }
 }

@@ -32,7 +32,7 @@ public enum ContentType {
         }
 
         @Override
-        boolean matchesExtension(String value) {
+        boolean matchesName(String value) {
             return false;
         }
     },
@@ -44,8 +44,9 @@ public enum ContentType {
         }
 
         @Override
-        boolean matchesExtension(String value) {
-            return StringUtils.equalsIgnoreCase(value, "xml");
+        boolean matchesName(String value) {
+            String extension = StringUtils.substringAfterLast(value, Constants.DOT);
+            return StringUtils.equalsIgnoreCase(extension, "xml");
         }
     },
 
@@ -56,12 +57,25 @@ public enum ContentType {
         }
 
         @Override
-        boolean matchesExtension(String value) {
+        boolean matchesName(String value) {
+            String extension = StringUtils.substringAfterLast(value, Constants.DOT);
             return StringUtils.equalsAnyIgnoreCase(
-                    value,
+                    extension,
                     "htl",
                     "html",
                     "htm");
+        }
+    },
+
+    MANIFEST {
+        @Override
+        public boolean matchesMime(String value) {
+            return false;
+        }
+
+        @Override
+        boolean matchesName(String value) {
+            return StringUtils.equalsIgnoreCase(value, "manifest.mf");
         }
     },
 
@@ -72,9 +86,10 @@ public enum ContentType {
         }
 
         @Override
-        boolean matchesExtension(String value) {
+        boolean matchesName(String value) {
+            String extension = StringUtils.substringAfterLast(value, Constants.DOT);
             return StringUtils.equalsAnyIgnoreCase(
-                    value,
+                    extension,
                     "css",
                     "csv",
                     "ecma",
@@ -103,10 +118,10 @@ public enum ContentType {
 
     /**
      * Checks if the given file extension is matched by the current content type
-     * @param value File extension to check
+     * @param value File name to check
      * @return True or false
      */
-    abstract boolean matchesExtension(String value);
+    abstract boolean matchesName(String value);
 
     /**
      * Gets the content type that matches the given MIME type
@@ -127,16 +142,16 @@ public enum ContentType {
     }
 
     /**
-     * Gets the content type that matches the given file extension
-     * @param value File extension
+     * Gets the content type that matches the given file name
+     * @param value File name
      * @return {@code ContentType} enum value
      */
-    public static ContentType fromExtension(String value) {
+    public static ContentType fromFileName(String value) {
         if (StringUtils.isBlank(value)) {
             return UNDEFINED;
         }
         for (ContentType contentType : values()) {
-            if (contentType.matchesExtension(value)) {
+            if (contentType.matchesName(value)) {
                 return contentType;
             }
         }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.exadel.etoolbox.anydiff.comparison;
+package com.exadel.etoolbox.anydiff.util;
 
 import com.exadel.etoolbox.anydiff.Constants;
 import lombok.AccessLevel;
@@ -22,6 +22,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -30,16 +31,17 @@ import java.util.List;
 
 /**
  * Contains utility methods for string manipulation
+ * <u>Note</u>: This class is not a part of public API and is subject to change. You should not use it directly
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class StringUtil {
+public class StringUtil {
 
     /**
      * Escapes the specified string to be safely displayed in HTML
      * @param value String to escape
      * @return Escaped string
      */
-    static String escape(String value) {
+    public static String escape(String value) {
         return StringUtils.defaultString(value)
                 .replace(Constants.TAG_OPEN, "&lt;")
                 .replace(Constants.TAG_CLOSE, "&gt;");
@@ -50,7 +52,7 @@ class StringUtil {
      * @param value Collection of strings to analyze
      * @return Number of leading spaces
      */
-    static int getIndent(List<? extends CharSequence> value) {
+    public static int getIndent(List<? extends CharSequence> value) {
         if (CollectionUtils.isEmpty(value)) {
             return 0;
         }
@@ -70,7 +72,7 @@ class StringUtil {
      * @param value String to analyze
      * @return Number of leading spaces
      */
-    static int getIndent(CharSequence value) {
+    public static int getIndent(CharSequence value) {
         if (StringUtils.isEmpty(value)) {
             return 0;
         }
@@ -88,7 +90,7 @@ class StringUtil {
      * @param candidates Substrings to search for
      * @return A {@link Pair} object containing the position of the selected substring and the substring itself
      */
-    static Pair<Integer, String> getNearestSubstring(CharSequence value, String... candidates) {
+    public static Pair<Integer, String> getNearestSubstring(CharSequence value, String... candidates) {
         int lastPosition = value.length();
         String lastCandidate = null;
         for (String candidate : candidates) {
@@ -107,7 +109,7 @@ class StringUtil {
      * @param entries Substrings to remove
      * @return A string with all occurrences of the specified substrings removed
      */
-    static String removeAll(String value, String... entries) {
+    public static String removeAll(String value, String... entries) {
         if (StringUtils.isEmpty(value) || ArrayUtils.isEmpty(entries)) {
             return value;
         }
@@ -129,7 +131,7 @@ class StringUtil {
      * @param length The maximum length of each chunk
      * @return A non-null list of chunks
      */
-    static List<String> splitByLength(CharSequence value, int length) {
+    public static List<String> splitByLength(CharSequence value, int length) {
         if (length <= 0) {
             return Collections.emptyList();
         }
@@ -144,19 +146,50 @@ class StringUtil {
     }
 
     /**
-     * Splits the specified string into lines. Note: this is a Java 8 method placeholder for {@link String#lines()}
+     * Splits the specified string into lines. Note: this is a Java 8 method polyfill for {@code String#lines()}
      * @param value The string to split
      * @return A non-null list of lines
      */
-    static List<String> splitByNewline(CharSequence value) {
-        if (StringUtils.isEmpty(value)) {
+    public static List<String> splitByNewline(CharSequence value) {
+        if (StringUtils.isEmpty(value) || StringUtils.equals(value, StringUtils.LF)) {
             return Collections.emptyList();
         }
         try (Reader reader = new StringReader(value.toString())) {
             return IOUtils.readLines(reader);
-        } catch (Exception e) {
+        } catch (IOException e) {
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Splits the specified string by the specified delimiter, ignoring any occurrences of the delimiter that are
+     * situated between the specified escape characters
+     * @param value     The string to split
+     * @param delimiter The character to split by
+     * @param escapeChar The character to escape the delimiter
+     * @return A non-null list of chunks
+     */
+    public static List<String> splitByUnescaped(CharSequence value, char delimiter, char escapeChar) {
+        if (StringUtils.isEmpty(value)) {
+            return Collections.emptyList();
+        }
+        List<String> result = new ArrayList<>();
+        boolean isEscaped = false;
+        StringBuilder current = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c == escapeChar) {
+                isEscaped = !isEscaped;
+            }
+            if (c == delimiter && !isEscaped) {
+                result.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        result.add(current.toString().trim());
+        return result;
     }
 
     /**
@@ -165,7 +198,7 @@ class StringUtil {
      * @param limit The maximum length of the resulting string
      * @return A truncated string
      */
-    static String truncateMiddle(CharSequence value, int limit) {
+    public static String truncateMiddle(CharSequence value, int limit) {
         return truncateMiddle(value, limit, Constants.ELLIPSIS);
     }
 
@@ -177,7 +210,7 @@ class StringUtil {
      * @param ellipsis The ellipsis string to use
      * @return A truncated string
      */
-    static String truncateMiddle(CharSequence value, int limit, String ellipsis) {
+    public static String truncateMiddle(CharSequence value, int limit, String ellipsis) {
         if (value == null) {
             return StringUtils.EMPTY;
         }
@@ -197,7 +230,7 @@ class StringUtil {
      * @param limit The maximum length of the resulting string
      * @return A truncated string
      */
-    static String truncateRight(CharSequence value, int limit) {
+    public static String truncateRight(CharSequence value, int limit) {
         if (value == null) {
             return StringUtils.EMPTY;
         }

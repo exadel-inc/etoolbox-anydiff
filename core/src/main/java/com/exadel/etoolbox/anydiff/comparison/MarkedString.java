@@ -16,6 +16,7 @@ package com.exadel.etoolbox.anydiff.comparison;
 import com.exadel.etoolbox.anydiff.AnyDiff;
 import com.exadel.etoolbox.anydiff.OutputType;
 import com.exadel.etoolbox.anydiff.diff.Fragment;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
