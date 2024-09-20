@@ -31,6 +31,8 @@ public class FragmentTest {
             "tempor incididunt ut labore et dolore magna aliqua{{/}}</span>.</p><p>Ut enim ad minim veniam, {{ins}}<br/>" +
             "{{/}}quis nostrud exercitation ullamco laboris nisi ut aliquip</p></div>";
 
+    private static final String JSON_SOURCE = "[\n{\"lorem\" : \"ipsum\"},\n{\"dolor\":  \"{{ins}}sit{{/}}\", \"amet\"}\n]";
+
     @Test
     public void shouldExtract() {
         List<Fragment> fragments = new MarkedString(TEXT_SOURCE).getFragments();
@@ -58,6 +60,14 @@ public class FragmentTest {
         Fragment attrValue = fragments.get(1);
         Assert.assertTrue(attrValue.as(MarkupFragment.class).isAttributeValue("class"));
         Assert.assertEquals("class=\"second\"", attrValue.as(MarkupFragmentImpl.class).toAttribute().toString());
+    }
+
+    @Test
+    public void shouldExpandToProperty() {
+        List<Fragment> fragments = new MarkedString(JSON_SOURCE).getMarkupFragments(true);
+        Fragment attrValue = fragments.get(0);
+        Assert.assertTrue(attrValue.as(MarkupFragment.class).isJsonValue("dolor"));
+        Assert.assertEquals("\"dolor\":  \"sit\"", attrValue.as(MarkupFragmentImpl.class).toJsonProperty().toString());
     }
 
     @Test
