@@ -1,6 +1,12 @@
 # EToolbox AnyDiff
 ![Project logo](logo.png)
 
+![License](https://img.shields.io/github/license/exadel-inc/etoolbox-anydiff)
+![Latest release](https://img.shields.io/github/v/release/exadel-inc/etoolbox-anydiff?color=%23ed8756)
+![Maven Central version](https://img.shields.io/maven-central/v/com.exadel.etoolbox/etoolbox-anydiff)
+
+***
+
 It is a Java library and a command line utility to visually compare content of files and manage differences. Mostly aimed at comparing XML and HTML files but can be used with any textual content.
 
 ### Motivation
