@@ -57,18 +57,23 @@ public abstract class Preprocessor implements UnaryOperator<String> {
      * @return {@code Preprocessor} instance
      */
     public static Preprocessor forType(ContentType type, TaskParameters parameters) {
-        if (type == null) {
+        if (type == null || parameters == null) {
             return BASIC;
         }
         Preprocessor custom = parameters.getPreprocessors().get(type);
         if (custom != null) {
             return custom;
         }
+        if (!parameters.normalize()) {
+            return BASIC;
+        }
         switch (type) {
             case HTML:
-                return parameters.normalize() ? new HtmlPreprocessor(parameters) : BASIC;
+                return new HtmlPreprocessor(parameters);
             case XML:
-                return parameters.normalize() ? new XmlPreprocessor(parameters) : BASIC;
+                return new XmlPreprocessor(parameters);
+            case MANIFEST:
+                return new ManifestPreprocessor();
             default:
                 return BASIC;
         }

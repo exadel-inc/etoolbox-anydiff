@@ -22,6 +22,7 @@ import com.exadel.etoolbox.anydiff.diff.EntryHolder;
 import com.exadel.etoolbox.anydiff.diff.Fragment;
 import com.exadel.etoolbox.anydiff.diff.FragmentHolder;
 import com.exadel.etoolbox.anydiff.diff.PrintableEntry;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;

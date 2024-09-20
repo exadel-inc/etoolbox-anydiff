@@ -105,8 +105,8 @@ public class DiffRunnerTest {
         Assert.assertTrue(runner instanceof DirectoryRunner);
 
         List<Diff> differences = runner.run();
-        Assert.assertEquals(9, differences.size());
-        Assert.assertEquals(5, differences.stream().filter(diff -> diff.getState() == DiffState.CHANGE).count());
+        Assert.assertEquals(10, differences.size());
+        Assert.assertEquals(6, differences.stream().filter(diff -> diff.getState() == DiffState.CHANGE).count());
     }
 
     @Test

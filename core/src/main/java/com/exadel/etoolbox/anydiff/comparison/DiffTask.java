@@ -15,11 +15,13 @@ package com.exadel.etoolbox.anydiff.comparison;
 
 import com.exadel.etoolbox.anydiff.Constants;
 import com.exadel.etoolbox.anydiff.ContentType;
+import com.exadel.etoolbox.anydiff.comparison.path.PathHelper;
 import com.exadel.etoolbox.anydiff.comparison.postprocessor.Postprocessor;
 import com.exadel.etoolbox.anydiff.comparison.preprocessor.Preprocessor;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffEntry;
 import com.exadel.etoolbox.anydiff.diff.DiffState;
+import com.exadel.etoolbox.anydiff.util.StringUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.Builder;
@@ -138,7 +140,7 @@ public class DiffTask {
                 .oldTag(isStart -> isStart ? Marker.DELETE.toString() : Marker.RESET.toString())
                 .newTag(isStart -> isStart ? Marker.INSERT.toString() : Marker.RESET.toString())
                 .lineNormalizer(EMPTY_NORMALIZER) // One needs this to override the OOTB preprocessor that spoils HTML
-                .inlineDiffBySplitter(SplitterUtil::getTokens)
+                .inlineDiffBySplitter(TokenizerUtil::getTokens)
                 .build();
         String leftPreprocessed = getPreprocessor(leftId).apply(leftContent.toString());
         String rightPreprocessed = getPreprocessor(rightId).apply(rightContent.toString());
@@ -193,21 +195,24 @@ public class DiffTask {
     }
 
     private String getContextPath(List<DiffRow> allRows, int position) {
-        if (contentType != ContentType.HTML && contentType != ContentType.XML) {
+        PathHelper pathHelper = PathHelper.forType(contentType);
+        if (pathHelper == null) {
             return StringUtils.EMPTY;
         }
-        return PathUtil.getPath(allRows, position);
+        return pathHelper.getPath(allRows, position);
     }
 
     private List<DiffRow> getLookbehindContext(List<DiffRow> allRows, int position) {
         if (position == 0) {
             return null;
         }
-        if (contentType != ContentType.HTML && contentType != ContentType.XML) {
+
+        PathHelper pathHelper = PathHelper.forType(contentType);
+        if (pathHelper == null) {
             return Collections.singletonList(allRows.get(position - 1));
         }
 
-        int nearestTagRowIndex = PathUtil.getPrecedingTagRowIndex(allRows, position - 1);
+        int nearestTagRowIndex = pathHelper.getPrecedingTagRowIndex(allRows, position - 1);
         if (nearestTagRowIndex >= 0) {
             return truncateContext(allRows.subList(nearestTagRowIndex, position));
         }
