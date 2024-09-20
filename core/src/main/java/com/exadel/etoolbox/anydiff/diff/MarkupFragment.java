@@ -14,7 +14,7 @@
 package com.exadel.etoolbox.anydiff.diff;
 
 /**
- * Represents a fragment of string content structured as XML or HTML markup
+ * Represents a fragment of string content structured as XML, HTML, or JSON markup
  */
 public interface MarkupFragment extends Fragment {
 
@@ -40,4 +40,12 @@ public interface MarkupFragment extends Fragment {
      * @return True or false
      */
     boolean isTagContent(String name);
+
+    /**
+     * Gets whether the current fragment is situated inside a JSON property with the given name. Note: this method
+     * only considers the "immediate" name of the property regardless how deep it is in the JSON structure
+     * @param name Name of the property. A non-empty string value is expected
+     * @return True or false
+     */
+    boolean isJsonValue(String name);
 }

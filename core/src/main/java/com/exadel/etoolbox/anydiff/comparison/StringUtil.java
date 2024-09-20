@@ -144,12 +144,12 @@ class StringUtil {
     }
 
     /**
-     * Splits the specified string into lines. Note: this is a Java 8 method placeholder for {@link String#lines()}
+     * Splits the specified string into lines. Note: this is a Java 8 method polyfill for {@code String#lines()}
      * @param value The string to split
      * @return A non-null list of lines
      */
     static List<String> splitByNewline(CharSequence value) {
-        if (StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value) || StringUtils.equals(value, StringUtils.LF)) {
             return Collections.emptyList();
         }
         try (Reader reader = new StringReader(value.toString())) {
