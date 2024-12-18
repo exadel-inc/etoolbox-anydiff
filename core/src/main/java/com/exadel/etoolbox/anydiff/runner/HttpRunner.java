@@ -23,19 +23,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 class HttpRunner extends DiffRunner {
 
     private static final String PROPERTY_HEADERS = "headers";
+    private static final String PROPERTY_PROXY = "proxy";
     private static final String PROPERTY_TRUST_SSL = "nosslcheck";
 
     private static final String CIRCUMFLEX = "^";
@@ -162,24 +160,25 @@ class HttpRunner extends DiffRunner {
         if (uri == null) {
             return CompletableFuture.completedFuture(new HttpResult(null));
         }
-        HttpClient client = createHttpClient(uri.getOptions());
+        OkHttpClient client = createHttpClient(uri.getOptions());
         return CompletableFuture.supplyAsync(() -> getHttpResult(uri, client, handleErrorPages));
     }
 
-    private static HttpResult getHttpResult(
-        RichUri uri,
-        HttpClient client,
-        boolean handleErrorPages) {
-
+    private static HttpResult getHttpResult(RichUri uri, OkHttpClient client, boolean handleErrorPages) {
         log.info("Downloading from {}", uri);
 
         StopWatch stopWatch = StopWatch.createStarted();
-        ClassicHttpRequest request = createHttpRequest(uri);
-        try {
-            HttpResult result = client.execute(request, new ResponseHandler(uri, handleErrorPages));
+        Request request = createHttpRequest(uri);
+        Call call = client.newCall(request);
+        try (Response response = call.execute()) {
             stopWatch.stop();
             log.info("Download from {} completed in {} ms", uri, stopWatch.getTime(TimeUnit.MILLISECONDS));
-            return result;
+            if (!response.isSuccessful() && !handleErrorPages) {
+                return new HttpResult(uri);
+            }
+            return response.body() != null
+                ? new HttpResult(uri, response.body().contentType(), response.body().string())
+                : new HttpResult(uri);
         } catch (IOException e) {
             stopWatch.stop();
             log.error(
@@ -193,31 +192,33 @@ class HttpRunner extends DiffRunner {
         }
     }
 
-    private static HttpClient createHttpClient(Map<String, String> requestOptions) {
+    private static OkHttpClient createHttpClient(Map<String, String> requestOptions) {
         boolean trustSsl = false;
+        String proxy = null;
         if (MapUtils.isNotEmpty(requestOptions)) {
             trustSsl = !Boolean.FALSE.toString().equals(requestOptions.get(PROPERTY_TRUST_SSL));
+            proxy = requestOptions.get(PROPERTY_PROXY);
         }
-        return HttpClientFactory.newClient(trustSsl);
+        return HttpClientFactory.getInstance().newClient(trustSsl, proxy);
     }
 
-    private static ClassicHttpRequest createHttpRequest(RichUri uri) {
+    private static Request createHttpRequest(RichUri uri) {
         String uriString = uri.toString();
-        HttpGet request = new HttpGet(uriString);
+        Request.Builder requestBuilder = new Request.Builder().url(uriString);
         if (StringUtils.isNotBlank(uri.getUserInfo())) {
-            request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(uri.getUserInfo().getBytes()));
+            requestBuilder.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString(uri.getUserInfo().getBytes()));
         }
         if (MapUtils.isNotEmpty(uri.getOptions())) {
-            populateCurlHeaders(uri, request);
+            populateCurlHeaders(uri, requestBuilder);
             uri.getOptions().entrySet()
                 .stream()
                 .filter(entry -> !StringUtils.equalsAny(entry.getKey(), PROPERTY_TRUST_SSL, PROPERTY_HEADERS))
-                .forEach(entry -> request.setHeader(entry.getKey(), entry.getValue()));
+                .forEach(entry -> requestBuilder.addHeader(entry.getKey(), entry.getValue()));
         }
-        return request;
+        return requestBuilder.build();
     }
 
-    private static void populateCurlHeaders(RichUri uri, ClassicHttpRequest request) {
+    private static void populateCurlHeaders(RichUri uri, Request.Builder requestBuilder) {
         String headersFile = uri.getOptions().get(PROPERTY_HEADERS);
         if (StringUtils.isBlank(headersFile)) {
             return;
@@ -239,7 +240,7 @@ class HttpRunner extends DiffRunner {
                 : line)
             .map(line -> line.startsWith(CIRCUMFLEX) ? line.replace(CIRCUMFLEX, StringUtils.EMPTY) : line)
             .map(line -> StringUtils.strip(line, " '\""))
-            .forEach(line -> request.setHeader(
+            .forEach(line -> requestBuilder.addHeader(
                 StringUtils.substringBefore(line, Constants.COLON).trim(),
                 StringUtils.substringAfter(line, Constants.COLON).trim()));
     }
@@ -268,11 +269,14 @@ class HttpRunner extends DiffRunner {
 
         private final RichUri richUri;
 
-        @Getter
-        private String contentType;
+        private MediaType contentType;
 
         @Getter
         private String content;
+
+        String getContentType() {
+            return contentType != null ? contentType.toString() : StringUtils.EMPTY;
+        }
 
         FileMetadata getMetadata() {
             return FileMetadata
@@ -284,27 +288,6 @@ class HttpRunner extends DiffRunner {
 
         String getPath() {
             return richUri.getUri().getPath();
-        }
-    }
-
-    /**
-     * Handles HTTP responses per the {@link HttpClient} contract
-     */
-    @RequiredArgsConstructor
-    private static class ResponseHandler implements HttpClientResponseHandler<HttpResult> {
-        private final RichUri uri;
-        private final boolean handleErrorPages;
-
-        @Override
-        public HttpResult handleResponse(ClassicHttpResponse response) throws IOException {
-            if (response.getCode() != HttpStatus.SC_OK && !handleErrorPages) {
-                return new HttpResult(uri);
-            }
-            HttpEntity entity = response.getEntity();
-            return new HttpResult(
-                uri,
-                entity.getContentType(),
-                IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
         }
     }
 }
