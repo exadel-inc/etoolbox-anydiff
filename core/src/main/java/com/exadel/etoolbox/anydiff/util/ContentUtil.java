@@ -18,12 +18,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.core5.net.URIBuilder;
 
-import java.net.URI;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Contains utility methods for extracting comparing-related data from text strings
@@ -56,8 +54,9 @@ public class ContentUtil {
             }
         }
         if (value.startsWith("\\[") || value.startsWith("\\\\[")) {
-            // This way we provide the possibility to compare arbitrary strings, either starting with {@code [}
-            // By escaping the leading {@code [}, we mean this is not a label. We can also escape {@code \[} itself
+            // This way we provide the possibility to compare arbitrary strings, either starting with {@code [} or
+            // {@code \[}. By escaping the leading {@code [}, we mean this is not a label. We can also escape
+            // {@code \[} itself
             return value.substring(1);
         }
         return value;
@@ -112,28 +111,22 @@ public class ContentUtil {
     }
 
     private static String truncateLabel(String value) {
+        String result = StringUtils.EMPTY;
         if (ContentUtil.isPathLike(value)) {
-            return value.contains(SCHEMA_SEPARATOR)
-                    ? cleanUpUrl(value)
-                    : value;
+            try {
+                RichUri uri = new RichUri(value);
+                result = uri.getUri().toString();
+                if (StringUtils.isNotEmpty(uri.getUri().getUserInfo())) {
+                    result = result.replace(uri.getUri().getUserInfo(), StringUtils.EMPTY);
+                }
+                if (result.contains(SCHEMA_SEPARATOR)) {
+                    result = StringUtils.substringAfter(result, SCHEMA_SEPARATOR);
+                }
+            } catch (URISyntaxException | IOException e) {
+                result = value;
+            }
         }
-        return StringUtils.abbreviate(value.replaceAll("\\s+", StringUtils.SPACE), LABEL_MAX_WIDTH);
-    }
-
-    private static String cleanUpUrl(String value) {
-        try {
-            URIBuilder uriBuilder = new URIBuilder(value);
-            uriBuilder.setUserInfo(StringUtils.EMPTY);
-            uriBuilder.setScheme(StringUtils.EMPTY);
-            uriBuilder.setParameters(uriBuilder
-                    .getQueryParams()
-                    .stream()
-                    .filter(param -> !param.getName().startsWith(Constants.AT))
-                    .collect(Collectors.toList()));
-            return StringUtils.strip(uriBuilder.toString(), " /");
-        } catch (URISyntaxException e) {
-            return truncateLabel(StringUtils.substringAfter(value, SCHEMA_SEPARATOR));
-        }
+        return StringUtils.abbreviate(result.replaceAll("\\s+", StringUtils.SPACE), LABEL_MAX_WIDTH);
     }
 
     /* --------------------
@@ -164,9 +157,9 @@ public class ContentUtil {
             return false;
         }
         try {
-            new URI(value.replace('\\', Constants.SLASH_CHAR));
+            new RichUri(value);
             return true;
-        } catch (URISyntaxException e) {
+        } catch (IOException | URISyntaxException e) {
             return false;
         }
     }

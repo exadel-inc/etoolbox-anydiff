@@ -16,7 +16,7 @@ package com.exadel.etoolbox.anydiff.runner;
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffState;
 import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,7 +27,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -39,12 +38,11 @@ public class DiffRunnerTest {
     private MockedStatic<HttpClientFactory> mockedSettings;
 
     @Before
-    public void init() throws IOException {
-        ClassicHttpResponse httpResponse = Mockito.mock(ClassicHttpResponse.class);
+    public void init() {
+        CloseableHttpResponse httpResponse = Mockito.mock(CloseableHttpResponse.class);
         Mockito.when(httpResponse.getEntity()).thenReturn(new StringEntity("test"));
 
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-        Mockito.when(httpClient.execute(Mockito.any())).thenReturn(httpResponse);
+        HttpClient httpClient = new LocalHttpClient(httpResponse);
 
         mockedSettings = Mockito.mockStatic(HttpClientFactory.class);
         Mockito.when(HttpClientFactory.newClient(Mockito.anyBoolean())).thenReturn(httpClient);
