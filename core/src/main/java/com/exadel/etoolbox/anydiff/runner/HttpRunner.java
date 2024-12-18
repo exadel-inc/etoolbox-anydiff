@@ -233,8 +233,10 @@ class HttpRunner extends DiffRunner {
             .stream()
             .filter(StringUtils::isNotBlank)
             .map(line -> StringUtils.strip(line, " \\^"))
-            .filter(line -> line.startsWith("-H"))
-            .map(line -> StringUtils.substringAfter(line, "-H").trim())
+            .filter(line -> line.startsWith("-H") || !line.startsWith(Constants.DASH))
+            .map(line -> line.startsWith("-H")
+                ? StringUtils.substringAfter(line, "-H").trim()
+                : line)
             .map(line -> line.startsWith(CIRCUMFLEX) ? line.replace(CIRCUMFLEX, StringUtils.EMPTY) : line)
             .map(line -> StringUtils.strip(line, " '\""))
             .forEach(line -> request.setHeader(

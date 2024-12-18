@@ -30,7 +30,6 @@ import java.util.Arrays;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentUtil {
 
-    private static final String SCHEMA_SEPARATOR = "://";
     private static final int LABEL_MAX_WIDTH = 120;
 
     /* ----------
@@ -119,8 +118,8 @@ public class ContentUtil {
                 if (StringUtils.isNotEmpty(uri.getUri().getUserInfo())) {
                     result = result.replace(uri.getUri().getUserInfo(), StringUtils.EMPTY);
                 }
-                if (result.contains(SCHEMA_SEPARATOR)) {
-                    result = StringUtils.substringAfter(result, SCHEMA_SEPARATOR);
+                if (result.contains(Constants.SCHEMA_SEPARATOR)) {
+                    result = StringUtils.substringAfter(result, Constants.SCHEMA_SEPARATOR);
                 }
             } catch (URISyntaxException | IOException e) {
                 result = value;
