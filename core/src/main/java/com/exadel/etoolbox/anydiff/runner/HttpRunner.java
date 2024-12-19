@@ -59,6 +59,7 @@ class HttpRunner extends DiffRunner {
     private static final String PROPERTY_TRUST_SSL = "nosslcheck";
 
     private static final String CIRCUMFLEX = "^";
+    private static final String CMD_KEY_HEADER = "-H";
 
     private final RichUri leftUri;
     private final RichUri rightUri;
@@ -209,7 +210,7 @@ class HttpRunner extends DiffRunner {
             requestBuilder.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString(uri.getUserInfo().getBytes()));
         }
         if (MapUtils.isNotEmpty(uri.getOptions())) {
-            populateCurlHeaders(uri, requestBuilder);
+            populateHeadersFromFile(uri, requestBuilder);
             uri.getOptions().entrySet()
                 .stream()
                 .filter(entry -> !StringUtils.equalsAny(entry.getKey(), PROPERTY_TRUST_SSL, PROPERTY_HEADERS))
@@ -218,7 +219,7 @@ class HttpRunner extends DiffRunner {
         return requestBuilder.build();
     }
 
-    private static void populateCurlHeaders(RichUri uri, Request.Builder requestBuilder) {
+    private static void populateHeadersFromFile(RichUri uri, Request.Builder requestBuilder) {
         String headersFile = uri.getOptions().get(PROPERTY_HEADERS);
         if (StringUtils.isBlank(headersFile)) {
             return;
@@ -230,16 +231,18 @@ class HttpRunner extends DiffRunner {
             log.error("Error reading headers from {}", headersFile, e);
             return;
         }
+        boolean isCurlFile = headersContent.startsWith("curl ");
         StringUtil.splitByNewline(headersContent)
             .stream()
             .filter(StringUtils::isNotBlank)
             .map(line -> StringUtils.strip(line, " \\^"))
-            .filter(line -> line.startsWith("-H") || !line.startsWith(Constants.DASH))
-            .map(line -> line.startsWith("-H")
-                ? StringUtils.substringAfter(line, "-H").trim()
+            .filter(line -> !isCurlFile || line.startsWith(CMD_KEY_HEADER))
+            .map(line -> isCurlFile
+                ? StringUtils.substringAfter(line, CMD_KEY_HEADER).trim()
                 : line)
             .map(line -> line.startsWith(CIRCUMFLEX) ? line.replace(CIRCUMFLEX, StringUtils.EMPTY) : line)
             .map(line -> StringUtils.strip(line, " '\""))
+            .filter(line -> StringUtils.contains(line, Constants.COLON))
             .forEach(line -> requestBuilder.addHeader(
                 StringUtils.substringBefore(line, Constants.COLON).trim(),
                 StringUtils.substringAfter(line, Constants.COLON).trim()));
