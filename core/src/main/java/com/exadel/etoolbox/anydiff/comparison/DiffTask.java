@@ -137,19 +137,20 @@ public class DiffTask {
 
     private Diff runForText() {
         DiffRowGenerator generator = DiffRowGenerator
-                .create()
-                .ignoreWhiteSpaces(taskParameters.ignoreSpaces())
-                .showInlineDiffs(true)
-                .oldTag(isStart -> isStart ? Marker.DELETE.toString() : Marker.RESET.toString())
-                .newTag(isStart -> isStart ? Marker.INSERT.toString() : Marker.RESET.toString())
-                .lineNormalizer(EMPTY_NORMALIZER) // One needs this to override the OOTB preprocessor that spoils HTML
-                .inlineDiffBySplitter(TokenizerUtil::getTokens)
-                .build();
+            .create()
+            .oldTag(isStart -> isStart ? Marker.DELETE.toString() : Marker.RESET.toString())
+            .newTag(isStart -> isStart ? Marker.INSERT.toString() : Marker.RESET.toString())
+            .lineNormalizer(EMPTY_NORMALIZER) // One needs this to override the OOTB preprocessor that spoils HTML
+            .equalizer(taskParameters.ignoreSpaces() ? EqualityUtil::equalsIgnoreSpaces : DiffRowGenerator.DEFAULT_EQUALIZER)
+            .inlineDiffBySplitter(TokenizerUtil::getTokens)
+            .showInlineDiffs(true)
+            .build();
         String leftPreprocessed = getPreprocessor(leftId).apply(leftContent.toString());
         String rightPreprocessed = getPreprocessor(rightId).apply(rightContent.toString());
         List<String> leftLines = StringUtil.splitByNewline(leftPreprocessed);
         List<String> rightLines = StringUtil.splitByNewline(rightPreprocessed);
-        List<DiffRow> diffRows = getPostprocessor().apply(generator.generateDiffRows(leftLines, rightLines));
+        List<DiffRow> diffRows = generator.generateDiffRows(leftLines, rightLines);
+        diffRows = getPostprocessor().apply(diffRows);
 
         DiffImpl result = new DiffImpl(leftId, rightId);
         List<AbstractBlock> blocks = getDiffBlocks(diffRows)

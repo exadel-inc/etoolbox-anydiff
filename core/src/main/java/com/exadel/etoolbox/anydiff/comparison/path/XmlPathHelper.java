@@ -76,7 +76,17 @@ class XmlPathHelper extends PathHelper {
 
     @Override
     public boolean isTag(String value) {
-        return startsWithIgnoreSpaces(value, Constants.TAG_OPEN);
+        if (StringUtils.isEmpty(value)) {
+            return false;
+        }
+        int tagIndex = value.indexOf(Constants.TAG_OPEN_CHAR);
+        if (tagIndex < 0) {
+            return false;
+        } else if (tagIndex == 0) {
+            return true;
+        } else {
+            return StringUtils.isBlank(value.subSequence(0, tagIndex));
+        }
     }
 
     private int getSiblingIndex(List<DiffRow> allRows, SidedPosition position, String tagName, int indent) {
@@ -109,14 +119,5 @@ class XmlPathHelper extends PathHelper {
             result = result.substring(0, result.length() - Constants.TAG_AUTO_CLOSE.length());
         }
         return "!--".equals(result) ? "#comment" : result;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static boolean startsWithIgnoreSpaces(CharSequence value, String prefix) {
-        if (StringUtils.isAnyEmpty(value, prefix)) {
-            return false;
-        }
-        int indentAmount = StringUtil.getIndent(value);
-        return value.toString().startsWith(prefix, indentAmount);
     }
 }
