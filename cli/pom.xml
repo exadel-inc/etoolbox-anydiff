@@ -82,4 +82,75 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>make-exe</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>parse-version</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>parse-version</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <propertyPrefix>ver</propertyPrefix>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                        <artifactId>launch4j-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>launch4j</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>launch4j</goal>
+                                </goals>
+                                <configuration>
+                                    <outfile>target/anydiff.exe</outfile>
+                                    <classPath>
+                                        <mainClass>com.exadel.etoolbox.anydiff.Main</mainClass>
+                                    </classPath>
+                                    <dontWrapJar>false</dontWrapJar>
+                                    <errTitle>EToolbox AnyDiff</errTitle>
+                                    <headerType>console</headerType>
+                                    <icon>anydiff.ico</icon>
+                                    <jar>target/anydiff.jar</jar>
+                                    <jre>
+                                        <minVersion>1.8.0</minVersion>
+                                    </jre>
+                                    <versionInfo>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <fileVersion>${ver.majorVersion}.${ver.minorVersion}.${ver.incrementalVersion}.0</fileVersion>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <txtFileVersion>${ver.majorVersion}.${ver.minorVersion}.${ver.incrementalVersion}.0</txtFileVersion>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <productVersion>${ver.majorVersion}.${ver.minorVersion}.${ver.incrementalVersion}.0</productVersion>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <txtProductVersion>${ver.majorVersion}.${ver.minorVersion}.${ver.incrementalVersion}.0</txtProductVersion>
+                                        <fileDescription>${project.name}</fileDescription>
+                                        <copyright>Exadel DX</copyright>
+                                        <productName>EToolbox AnyDiff</productName>
+                                        <internalName>AnyDiff</internalName>
+                                        <originalFilename>anydiff.exe</originalFilename>
+                                    </versionInfo>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
