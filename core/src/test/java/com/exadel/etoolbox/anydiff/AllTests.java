@@ -24,6 +24,7 @@ import com.exadel.etoolbox.anydiff.comparison.preprocessor.PreprocessorsTest;
 import com.exadel.etoolbox.anydiff.runner.DiffRunnerTest;
 import com.exadel.etoolbox.anydiff.runner.FilterHelperTest;
 import com.exadel.etoolbox.anydiff.runner.FiltersTest;
+import com.exadel.etoolbox.anydiff.util.RichUriTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -43,7 +44,9 @@ import org.junit.runners.Suite;
         SpacesHandlingTest.class,
 
         FilterHelperTest.class,
-        FiltersTest.class
+        FiltersTest.class,
+
+        RichUriTest.class
 })
 public class AllTests {
 }

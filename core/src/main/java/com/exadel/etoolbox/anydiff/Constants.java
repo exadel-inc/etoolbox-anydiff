@@ -38,6 +38,7 @@ public class Constants {
     public static final char COLON_CHAR = COLON.charAt(0);
     public static final String COMMA = ",";
     public static final char COMMA_CHAR = COMMA.charAt(0);
+    public static final String DASH = "-";
     public static final char DASH_CHAR = '-';
     public static final String DOT = ".";
     public static final String ELLIPSIS = "...";
@@ -57,6 +58,8 @@ public class Constants {
     public static final String CLASS_LEFT = "left";
     public static final String CLASS_PATH = "path";
     public static final String CLASS_RIGHT = "right";
+
+    public static final String SCHEMA_SEPARATOR = "://";
 
     public static final char BRACKET_OPEN = '[';
     public static final char BRACKET_CLOSE = ']';

@@ -15,9 +15,9 @@ package com.exadel.etoolbox.anydiff.runner;
 
 import com.exadel.etoolbox.anydiff.diff.Diff;
 import com.exadel.etoolbox.anydiff.diff.DiffState;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +27,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -36,23 +35,38 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class DiffRunnerTest {
 
-    private MockedStatic<HttpClientFactory> mockedSettings;
+    private MockedStatic<HttpClientFactory> httpClientFactory;
+    private Response httpResponse;
 
     @Before
-    public void init() throws IOException {
-        ClassicHttpResponse httpResponse = Mockito.mock(ClassicHttpResponse.class);
-        Mockito.when(httpResponse.getEntity()).thenReturn(new StringEntity("test"));
+    public void init() {
+        httpResponse = new Response.Builder()
+                .request(new okhttp3.Request.Builder().url("https://acme.com/1.html").build())
+                .protocol(okhttp3.Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(ResponseBody.create("test", okhttp3.MediaType.parse("text/plain")))
+                .build();
 
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-        Mockito.when(httpClient.execute(Mockito.any())).thenReturn(httpResponse);
+        OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(chain -> {
+                chain.proceed(chain.request());
+                return httpResponse;
+            }).build();
 
-        mockedSettings = Mockito.mockStatic(HttpClientFactory.class);
-        Mockito.when(HttpClientFactory.newClient(Mockito.anyBoolean())).thenReturn(httpClient);
+        httpClientFactory = Mockito.mockStatic(HttpClientFactory.class);
+        Mockito.when(HttpClientFactory.getInstance()).thenReturn(new HttpClientFactory() {
+            @Override
+            public OkHttpClient newClient(boolean useProxy, String proxyHost) {
+                return client;
+            }
+        });
     }
 
     @After
     public void destroy() {
-        mockedSettings.close();
+        httpClientFactory.close();
+        httpResponse.close();
     }
 
     @Test
