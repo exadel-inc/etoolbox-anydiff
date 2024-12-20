@@ -75,7 +75,7 @@ Use `--normalize (true|false)` (or `-n (true|false)`) to control whether the pro
 Use `--handle-errorpages (true|false)` (or `-e (true|false)`) to control whether the program should handle error pages (HTTP status 4xx, 5xx) as "normal" pages with comparable markup. Default is _false,_ which means that the error is reported instead of comparing content.
 
 Use `--ignore-spaces` (or `-i`) to make the comparison neglect the number of spaces between words. Default is _false_.
-Please note: this setting is partially overlapped by `normalize` and `arrange` because preparing perfectly aligned markup trees leads to many empty lines and indentations removed. In markup files, ignoring spaces mostly relates to text nodes and literals. In non-markup files, it is more universal.
+Note: this setting is partially overlapped by `normalize` and `arrange` because preparing perfectly aligned markup trees leads to many empty lines and indentations removed. So, "ignore-spaces" mostly relates to the content of text nodes, and also to non-markup files. Use this option cautiously because it also affects the performance of diffing.
 
 ### Java API
 
