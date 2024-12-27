@@ -17,9 +17,9 @@ This tool was originally created to accompany [Exadel Authoring Kit for AEM](htt
 
 ### Features
 
-There is the [Java library](./core) available via Maven and a [command-line application](./cli). Both offer the same set of features.
+There is the [Java library](./core) available via Maven and a [command-line application](./cli) which is supplied as both a _.jar_ file and an _.exe_ application for Windows. Either offers the same set of features.
 
-Feature display is per the CLI utility.
+Feature display is per the CLI utility with a _.jar_ file.
 
 ##### Compare two files, directories
 ```
@@ -99,7 +99,7 @@ To use Java API, add the following dependency to your Maven project:
 <dependency>
     <groupId>com.exadel.etoolbox</groupId>
     <artifactId>etoolbox-anydiff-core</artifactId>
-    <version>1.0.0</version> <!-- always prefer the latest stable version -->
+    <version>1.1.1</version> <!-- always prefer the latest stable version -->
 </dependency>
 ```
 
@@ -164,7 +164,6 @@ The project makes use of the following open-source libraries:
 
 - [Apache Commons CLI](https://github.com/apache/commons-cli) under the Apache License, Version 2.0;
 - [Apache Commons Collections](https://github.com/apache/commons-collections) under the Apache License, Version 2.0;
-- [Apache HTTP Client](https://github.com/apache/httpd) under the Apache License, Version 2.0;
 - [Apache Commons IO](https://github.com/apache/commons-io/) under the Apache License, Version 2.0;
 - [Apache Commons Lang](https://github.com/apache/commons-lang/) under the Apache License, Version 2.0;
 - [Java Diff Utils](https://github.com/java-diff-utils/java-diff-utils) under the Apache License, Version 2.0;
@@ -173,5 +172,6 @@ The project makes use of the following open-source libraries:
 - [Logback](https://github.com/qos-ch/logback) under the Eclipse Public License Version 1.0;
 - [Mockito](https://github.com/mockito/mockito) under the MIT License;
 - [Mozilla Rhino](https://github.com/mozilla/rhino) under the [Mozilla Public License Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/);
+- [OkHttp HTTP Client](https://github.com/apache/httpd) under the Apache License, Version 2.0;
 - [Project Lombok](https://github.com/projectlombok/lombok) under the [License](https://github.com/projectlombok/lombok/blob/master/LICENSE);
 - [SLF4J](https://github.com/qos-ch/slf4j) under the MIT License.
