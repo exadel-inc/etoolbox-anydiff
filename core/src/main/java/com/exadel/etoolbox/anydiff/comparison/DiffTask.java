@@ -44,6 +44,9 @@ public class DiffTask {
 
     private static final UnaryOperator<String> EMPTY_NORMALIZER = StringUtils::defaultString;
 
+    private static final String ANSI_MOVE_LEFT = "\u001B[1000D";
+    private static final String ANSI_CLEAR_LINE = "\u001B[2K";
+
     private final ContentType contentType;
 
     private final String leftId;
@@ -116,10 +119,8 @@ public class DiffTask {
                     .build();
             return new DiffImpl(leftId, rightId).withChildren(miss);
         }
-        System.out.print("Comparing... ");
-        Diff result = contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
-        System.out.println("Finished.");
-        return result;
+        System.out.print(ANSI_MOVE_LEFT + ANSI_CLEAR_LINE + "Comparing... ");
+        return contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
     }
 
     private Diff runForBinary() {
