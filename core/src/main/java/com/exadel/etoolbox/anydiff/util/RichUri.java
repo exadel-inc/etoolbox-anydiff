@@ -73,6 +73,7 @@ public class RichUri {
         for (char c = '0'; c <= '9'; c++) {
             streamTokenizer.ordinaryChar(c);
         }
+        streamTokenizer.wordChars('0', '9');
         List<String> buffer = new ArrayList<>();
         int token = streamTokenizer.nextToken();
         while (token != StreamTokenizer.TT_EOF) {

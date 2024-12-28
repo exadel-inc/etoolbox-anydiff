@@ -28,11 +28,12 @@ public class RichUriTest {
     @Test
     public void shouldParseUri() {
         List<String> uris = Arrays.asList(
-            "http://www.example.com",
-            "https://www.example.com#fragment",
-            "http://www.example.com/path",
-            "https://www.example.com/path?query=param",
-            "ftp://ftp.example.com/path",
+            "http://www.acme.com",
+            "https://www.acme.com#fragment",
+            "http://www.acme.com/path",
+            "https://www.acme.com/path?query=param",
+            "https://www.acme.com/path.with-selector.html?query=param",
+            "ftp://ftp.acme.com/path",
             "file:///C:/path/to/file.txt",
             "file:///home/user/file.txt",
             "C:\\path\\to\\мой файл.txt",
@@ -42,7 +43,7 @@ public class RichUriTest {
             "urn:ietf:rfc:2648",
             "http://localhost",
             "http://localhost:8080",
-            "customscheme://example",
+            "customscheme://acme",
             "/path/to/resource",
             "../path/to/resource",
             "http://192.168.0.1",
@@ -66,15 +67,15 @@ public class RichUriTest {
 
     @Test
     public void shouldParseUriWithUserInfo() throws URISyntaxException, IOException {
-        RichUri richUri = new RichUri("https://admin:admin@www.example.com#fragment");
+        RichUri richUri = new RichUri("https://admin:admin@www.acme.com#fragment");
         Assert.assertNotNull(richUri);
         Assert.assertNotNull(richUri.getUri());
         Assert.assertEquals("admin:admin", richUri.getUserInfo());
         Assert.assertEquals(
-            "https://www.example.com#fragment",
+            "https://www.acme.com#fragment",
             richUri.toString());
 
-        richUri = new RichUri("mailto:user@example.com?subject=Hello");
+        richUri = new RichUri("mailto:user@acme.com?subject=Hello");
         Assert.assertNotNull(richUri);
         Assert.assertNotNull(richUri.getUri());
         Assert.assertEquals("user", richUri.getUserInfo());
@@ -82,14 +83,14 @@ public class RichUriTest {
 
     @Test
     public void shouldParseUriWithOptions() throws URISyntaxException, IOException {
-        RichUri richUri = new RichUri("https://www.example.com/some/path.html?foo=bar&@baz=qux&@qu-ux='some / value'");
+        RichUri richUri = new RichUri("https://www.acme.com/some/path.4aa4-9635.html?foo=bar&@baz=qux&@qu-ux='some / value'");
         Assert.assertNotNull(richUri);
         Assert.assertNotNull(richUri.getUri());
         Assert.assertTrue(MapUtils.isNotEmpty(richUri.getOptions()));
         Assert.assertEquals("qux", richUri.getOptions().get("baz"));
         Assert.assertEquals("some / value", richUri.getOptions().get("qu-ux"));
         Assert.assertEquals(
-            "https://www.example.com/some/path.html?foo=bar",
+            "https://www.acme.com/some/path.4aa4-9635.html?foo=bar",
             richUri.toString());
     }
 }
