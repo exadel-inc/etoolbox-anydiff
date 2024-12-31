@@ -21,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -85,7 +86,7 @@ class XmlPathHelper extends PathHelper {
         } else if (tagIndex == 0) {
             return true;
         } else {
-            return StringUtils.isBlank(value.subSequence(0, tagIndex));
+            return isBlankOrMarkers(value.subSequence(0, tagIndex));
         }
     }
 
@@ -119,5 +120,29 @@ class XmlPathHelper extends PathHelper {
             result = result.substring(0, result.length() - Constants.TAG_AUTO_CLOSE.length());
         }
         return "!--".equals(result) ? "#comment" : result;
+    }
+
+    private boolean isBlankOrMarkers(CharSequence value) {
+        int i = 0;
+        while (i < value.length()) {
+            char c = value.charAt(i);
+            if (Character.isWhitespace(c)) {
+                i++;
+            } else if (c == '{' && i + 1 < value.length() && value.charAt(i + 1) == '{') {
+                int position = i;
+                String marker = Arrays.stream(Marker.TOKENS)
+                    .filter(m -> StringUtil.contains(value, m, position))
+                    .findFirst()
+                    .orElse(null);
+                if (marker != null) {
+                    i += marker.length();
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        return i == value.length();
     }
 }

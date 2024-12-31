@@ -83,14 +83,17 @@ public abstract class PathHelper {
             if (!isTagToTheLeft && !isTagToTheRight) {
                 continue;
             }
-            boolean isMatchToTheLeft = filter.test(current.getOldLine());
-            boolean isMatchToTheRight = filter.test(current.getNewLine());
+            boolean isMatchToTheLeft = isTagToTheLeft && filter.test(current.getOldLine());
+            boolean isMatchToTheRight = isTagToTheRight && filter.test(current.getNewLine());
             boolean isMatchOnEitherSide = isMatchToTheLeft || isMatchToTheRight;
 
             if ((position.getSide() == Side.LEFT && isMatchToTheLeft)
                 || (position.getSide() == Side.RIGHT && isMatchToTheRight)
                 || (position.getSide() == Side.ANY && isMatchOnEitherSide)) {
-                return new SidedPosition(i, position.getSide());
+                Side side = position.getSide() != Side.ANY
+                    ? position.getSide()
+                    : (isMatchToTheLeft ? Side.LEFT : Side.RIGHT);
+                return new SidedPosition(i, side);
             }
         }
         return SidedPosition.INVALID;

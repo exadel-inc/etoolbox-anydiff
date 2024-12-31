@@ -44,8 +44,7 @@ public class DiffTask {
 
     private static final UnaryOperator<String> EMPTY_NORMALIZER = StringUtils::defaultString;
 
-    private static final String ANSI_MOVE_LEFT = "\u001B[1000D";
-    private static final String ANSI_CLEAR_LINE = "\u001B[2K";
+    private static final String MESSAGE_COMPARING = "Comparing... ";
 
     private final ContentType contentType;
 
