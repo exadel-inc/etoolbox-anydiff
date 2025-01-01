@@ -118,8 +118,10 @@ public class DiffTask {
                     .build();
             return new DiffImpl(leftId, rightId).withChildren(miss);
         }
-        System.out.print(ANSI_MOVE_LEFT + ANSI_CLEAR_LINE + "Comparing... ");
-        return contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
+        System.out.print(MESSAGE_COMPARING);
+        Diff result = contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
+        System.out.print(StringUtils.repeat('\b', MESSAGE_COMPARING.length()));
+        return result;
     }
 
     private Diff runForBinary() {
