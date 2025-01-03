@@ -49,8 +49,8 @@ public class DiffBlockXPathTest {
                     .run();
 
             Assert.assertEquals(5, diff.children().size());
-            Assert.assertEquals("/html/head", ((BlockImpl) diff.children().get(0)).getPath());
-            Assert.assertEquals("/html/body", ((BlockImpl) diff.children().get(1)).getPath());
+            Assert.assertEquals("/html/head/meta", ((BlockImpl) diff.children().get(0)).getPath());
+            Assert.assertEquals("/html/body/p", ((BlockImpl) diff.children().get(1)).getPath());
             Assert.assertEquals("/html/body/h1", ((BlockImpl) diff.children().get(2)).getPath());
             Assert.assertEquals("/html/body/h1", ((BlockImpl) diff.children().get(3)).getPath());
             Assert.assertEquals("/html/body/h1", ((BlockImpl) diff.children().get(4)).getPath());
@@ -77,8 +77,8 @@ public class DiffBlockXPathTest {
                     .run();
             Assert.assertEquals("/catalog/items/item", ((BlockImpl) diff.children().get(0)).getPath());
             Assert.assertEquals("/catalog/items/item[2]/title", ((BlockImpl) diff.children().get(1)).getPath());
-            Assert.assertEquals("/catalog/items/item[2]/description", ((BlockImpl) diff.children().get(2)).getPath());
-            Assert.assertEquals("/catalog/items/item[2]", ((BlockImpl) diff.children().get(3)).getPath());
+            Assert.assertEquals("/catalog/items/item[2]/ranking", ((BlockImpl) diff.children().get(2)).getPath());
+            Assert.assertEquals("/catalog/items/more", ((BlockImpl) diff.children().get(3)).getPath());
         }
     }
 

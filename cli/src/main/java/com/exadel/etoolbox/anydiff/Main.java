@@ -67,6 +67,7 @@ public class Main {
                     log.info("-{} (--{}) {}", option.getOpt(), option.getLongOpt(), option.getDescription()));
             return;
         }
+        System.out.print("EToolbox AnyDiff ");
         AnyDiff anyDiff = new AnyDiff()
                 .left(runArguments.getLeft())
                 .right(runArguments.getRight());
