@@ -14,6 +14,7 @@
 package com.exadel.etoolbox.anydiff.util;
 
 import com.exadel.etoolbox.anydiff.Constants;
+import com.exadel.etoolbox.anydiff.comparison.Marker;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -26,6 +27,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +38,25 @@ import java.util.List;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtil {
+
+    /**
+     * Checks if the specified string contains the specified substring starting from the specified index
+     * @param context   The string to search in. A non-null value is expected
+     * @param entry     The substring to search for. A non-null value is expected
+     * @param fromIndex The index to start the search from. A non-negative value is expected
+     * @return True or false
+     */
+    public static boolean contains(CharSequence context, CharSequence entry, int fromIndex) {
+        if (context == null || entry == null || fromIndex < 0) {
+            return false;
+        }
+        for (int i = 0; i < entry.length(); i++) {
+            if (fromIndex + i >= context.length() || context.charAt(fromIndex + i) != entry.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Escapes the specified string to be safely displayed in HTML
@@ -52,7 +74,7 @@ public class StringUtil {
      * @param value Collection of strings to analyze
      * @return Number of leading spaces
      */
-    public static int getIndent(List<? extends CharSequence> value) {
+    public static int getIndent(Collection<? extends CharSequence> value) {
         if (CollectionUtils.isEmpty(value)) {
             return 0;
         }
@@ -68,7 +90,8 @@ public class StringUtil {
     }
 
     /**
-     * Gets the number of leading spaces in the specified string
+     * Gets the number of leading spaces in the specified string. This method is designed to ignore occasional diff
+     * markers among the leading spaces to retrieve merely visual indentation
      * @param value String to analyze
      * @return Number of leading spaces
      */
@@ -76,10 +99,28 @@ public class StringUtil {
         if (StringUtils.isEmpty(value)) {
             return 0;
         }
-        for (int i = 0; i < value.length(); i++) {
-            if (!Character.isWhitespace(value.charAt(i))) {
-                return i;
+        int i = 0;
+        int indent = 0;
+        while (i < value.length()) {
+            char c = value.charAt(i);
+            if (c == '{' && i < value.length() - 1 && value.charAt(i + 1) == '{') {
+                int position = i;
+                String markerToken = Arrays.stream(Marker.TOKENS)
+                    .filter(token -> contains(value, token, position))
+                    .findFirst()
+                    .orElse(null);
+                if (markerToken != null) {
+                    i += markerToken.length();
+                    continue;
+                } else {
+                    return i;
+                }
+            } else if (Character.isWhitespace(c)) {
+                indent++;
+            } else {
+                return indent;
             }
+            i++;
         }
         return value.length();
     }

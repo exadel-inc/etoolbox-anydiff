@@ -67,6 +67,7 @@ public class Main {
                     log.info("-{} (--{}) {}", option.getOpt(), option.getLongOpt(), option.getDescription()));
             return;
         }
+        System.out.print("EToolbox AnyDiff ");
         AnyDiff anyDiff = new AnyDiff()
                 .left(runArguments.getLeft())
                 .right(runArguments.getRight());
@@ -277,8 +278,8 @@ public class Main {
     }
 
     private static String createFileName(File directory, String leftLabel, String rightLabel) {
-        String leftEscaped = leftLabel.replaceAll(REPLACED_FILENAME_CHARS, "-");
-        String rightEscaped = rightLabel.replaceAll(REPLACED_FILENAME_CHARS, "-");
+        String leftEscaped = leftLabel.replaceAll(REPLACED_FILENAME_CHARS, Constants.DASH);
+        String rightEscaped = rightLabel.replaceAll(REPLACED_FILENAME_CHARS, Constants.DASH);
         String fileNameBase = leftEscaped + "-vs-" + rightEscaped;
         String fileName = fileNameBase;
         int index = 1;

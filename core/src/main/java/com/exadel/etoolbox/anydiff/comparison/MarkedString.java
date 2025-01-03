@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
  * Represents a string that can contain specially marked fragments
  */
 class MarkedString {
+
+    private static final String WHITESPACE_PATTERN = "[\\t\\x0B\\f]";
 
     private final List<Chunk> chunks;
     private final boolean ignoreSpaces;
@@ -78,7 +81,7 @@ class MarkedString {
             return;
         }
         chunks = new ArrayList<>();
-        chunks.add(new Chunk(content, marker));
+        chunks.add(new Chunk(unifySpaces(content), marker));
     }
 
     /**
@@ -96,7 +99,7 @@ class MarkedString {
      * @param content      String value
      * @param ignoreSpaces If set to {@code true}, the dangling spaces are not respected when operations are performed
      *                     over in-string {@code Marker}s
-     * @param normalize    If set to {@code true}m the dangling spaces can be trimmed to compactify the output
+     * @param normalize    If set to {@code true}, the dangling spaces can be trimmed to compactify the output
      */
     MarkedString(String content, boolean ignoreSpaces, boolean normalize) {
         this.ignoreSpaces = ignoreSpaces;
@@ -106,7 +109,7 @@ class MarkedString {
             return;
         }
         chunks = new ArrayList<>();
-        StringBuilder source = new StringBuilder(content);
+        StringBuilder source = new StringBuilder(unifySpaces(content));
         Pair<Integer, String> entry = StringUtil.getNearestSubstring(source, Marker.TOKENS);
         Marker lastOpenMarker = null;
         while (entry != null) {
@@ -505,6 +508,10 @@ class MarkedString {
         return value == null || value.chunks.isEmpty();
     }
 
+    private static String unifySpaces(String value) {
+        return value.replaceAll(WHITESPACE_PATTERN, StringUtils.SPACE);
+    }
+
     /* ---------------
        Utility classes
        --------------- */
@@ -548,6 +555,7 @@ class MarkedString {
         }
 
         @Override
+        @NotNull
         public CharSequence subSequence(int begin, int end) {
             return text.subSequence(begin, end);
         }
@@ -610,6 +618,12 @@ class MarkedString {
             }
             String after = marker != null ? Marker.RESET.to(target, marker) : StringUtils.EMPTY;
             return before + main + after;
+        }
+
+        @NotNull
+        @Override
+        public String toString() {
+            return toString(OutputType.CONSOLE);
         }
     }
 
