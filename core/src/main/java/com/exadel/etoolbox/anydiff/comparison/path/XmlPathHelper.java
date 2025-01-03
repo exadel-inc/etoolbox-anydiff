@@ -21,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -105,6 +104,27 @@ class XmlPathHelper extends PathHelper {
         return result;
     }
 
+    private static int getMarkerLength(CharSequence value, int position) {
+        int result = 1;
+        if (position == value.length() - 1) {
+            return result;
+        }
+        if (value.charAt(position + 1) == '{') {
+            result++;
+        } else {
+            return result;
+        }
+        while (Character.isLetter(value.charAt(position + result)) || value.charAt(position + result) == '/') {
+            result++;
+        }
+        if (value.charAt(position + result) == '}'
+            && position + result < value.length()
+            && value.charAt(position + result + 1) == '}') {
+            return result + 2;
+        }
+        return 1;
+    }
+
     private static String getTagNameAt(List<DiffRow> allRows, SidedPosition position) {
         DiffRow tagRow = allRows.get(position.getValue());
         String tagNameSource = position.getSide() == Side.LEFT ? tagRow.getOldLine() : tagRow.getNewLine();
@@ -115,30 +135,22 @@ class XmlPathHelper extends PathHelper {
             .filter(pos -> pos > start)
             .min()
             .orElse(tagNameSource.length());
-        String result = StringUtil.removeAll(tagNameSource.substring(start, end), Marker.TOKENS);
+        String result = tagNameSource.substring(start, end);
+        result = StringUtil.removeAll(result, Marker.TOKENS);
         if (result.contains(Constants.TAG_AUTO_CLOSE)) {
             result = result.substring(0, result.length() - Constants.TAG_AUTO_CLOSE.length());
         }
         return "!--".equals(result) ? "#comment" : result;
     }
 
-    private boolean isBlankOrMarkers(CharSequence value) {
+    private static boolean isBlankOrMarkers(CharSequence value) {
         int i = 0;
         while (i < value.length()) {
             char c = value.charAt(i);
-            if (Character.isWhitespace(c)) {
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
                 i++;
-            } else if (c == '{' && i + 1 < value.length() && value.charAt(i + 1) == '{') {
-                int position = i;
-                String marker = Arrays.stream(Marker.TOKENS)
-                    .filter(m -> StringUtil.contains(value, m, position))
-                    .findFirst()
-                    .orElse(null);
-                if (marker != null) {
-                    i += marker.length();
-                } else {
-                    break;
-                }
+            } else if (c == '{') {
+                i += getMarkerLength(value, i);
             } else {
                 break;
             }
