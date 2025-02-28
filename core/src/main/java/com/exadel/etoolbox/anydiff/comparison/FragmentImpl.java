@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Implements {@link Fragment} to manage a char sequence in a string that differs from another string
@@ -80,6 +81,7 @@ class FragmentImpl implements Fragment {
         return source.charAt(index + offset);
     }
 
+    @NotNull
     @Override
     public CharSequence subSequence(int start, int end) {
         return source.subSequence(start + this.offset, end + this.offset);
@@ -98,6 +100,7 @@ class FragmentImpl implements Fragment {
         }
     }
 
+    @NotNull
     @Override
     public String toString() {
         return source.subSequence(offset, endOffset).toString();
