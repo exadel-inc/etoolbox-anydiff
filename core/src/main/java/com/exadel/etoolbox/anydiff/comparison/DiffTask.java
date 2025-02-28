@@ -27,6 +27,7 @@ import com.github.difflib.text.DiffRowGenerator;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MarkerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,8 +46,6 @@ import java.util.stream.Collectors;
 public class DiffTask {
 
     private static final UnaryOperator<String> EMPTY_NORMALIZER = StringUtils::defaultString;
-
-    private static final String MESSAGE_COMPARING = "Comparing... ";
 
     private final ContentType contentType;
 
@@ -120,10 +119,8 @@ public class DiffTask {
                     .build();
             return new DiffImpl(leftId, rightId).withChildren(miss);
         }
-        System.out.print(MESSAGE_COMPARING);
-        Diff result = contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
-        System.out.print(StringUtils.repeat('\b', MESSAGE_COMPARING.length()));
-        return result;
+        log.info(MarkerFactory.getMarker(Constants.MARKER_CONSOLE_ONLY), ".Comparing...");
+        return contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
     }
 
     private Diff runForBinary() {

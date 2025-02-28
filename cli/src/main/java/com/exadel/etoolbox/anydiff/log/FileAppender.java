@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * Extends {@link  ch.qos.logback.core.FileAppender} to provide a custom log file cleanup logic
- * @param <E>
+ * @param <E> Type of log event
  */
 public class FileAppender<E> extends ch.qos.logback.core.FileAppender<E> {
 

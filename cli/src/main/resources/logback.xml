@@ -2,7 +2,7 @@
 <configuration>
     <timestamp key="timestamp" datePattern="yyyyMMddHHmmss"/>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="com.exadel.etoolbox.anydiff.log.ConsoleAppender">
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="com.exadel.etoolbox.anydiff.log.ExcludingEventEvaluator">
                 <exclude>FILE_ONLY</exclude>
@@ -12,7 +12,7 @@
             <OnMismatch>DENY</OnMismatch>
             <OnMatch>ACCEPT</OnMatch>
         </filter>
-        <encoder>
+        <encoder class="com.exadel.etoolbox.anydiff.log.ConsoleEncoder">
             <charset>UTF-8</charset>
             <pattern>%msg%n</pattern>
         </encoder>
