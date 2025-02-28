@@ -80,6 +80,10 @@ section:not(.no-highlight) line:not(.header):nth-child(even) > .right {
     background-color: #e6f8ff;
 }
 
+section.no-header .header {
+    display: none;
+}
+
 line.ellipsis {
     color: #909090;
     justify-content: center;
@@ -113,6 +117,10 @@ line > div {
 .ins,.del {
     padding: 0.1rem 0.3rem;
     border-radius: 4px;
+}
+
+.err {
+    color: #ca0000;
 }
 
 .hidden {
