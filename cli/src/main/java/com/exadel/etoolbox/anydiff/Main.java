@@ -194,8 +194,9 @@ public class Main {
             log.info(line);
             log.info(StringUtils.repeat(Constants.EQUALS, line.length() - 1));
         } else {
-            log.info(String.format("\nFound %d new difference(-s)", pendingCount));
+            String line = String.format("\nFound %d new difference(-s)", pendingCount);
             String secondLine = String.format("There are also %d accepted difference(-s)", allCount - pendingCount);
+            log.info(line);
             log.info(secondLine);
             log.info(StringUtils.repeat(Constants.EQUALS, secondLine.length()));
         }
@@ -216,7 +217,7 @@ public class Main {
                 log.info("No differences");
             }
         } else {
-            if (isOneOfMany) {
+            if (isOneOfMany && diff.getCount() > 0) {
                 log.info("{} difference(-s)", diff.getCount());
             }
             log.info(CONSOLE_ONLY, diff.toString(OutputType.CONSOLE));
