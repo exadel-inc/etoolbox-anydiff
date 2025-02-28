@@ -90,6 +90,8 @@ public enum ContentType {
             String extension = StringUtils.substringAfterLast(value, Constants.DOT);
             return StringUtils.equalsAnyIgnoreCase(
                     extension,
+                    "any",
+                    "conf",
                     "css",
                     "csv",
                     "ecma",
@@ -104,8 +106,11 @@ public enum ContentType {
                     "mf",
                     "php",
                     "properties",
+                    "rules",
                     "ts",
-                    "txt");
+                    "txt",
+                    "vars",
+                    "vhost");
         }
     };
 
