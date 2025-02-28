@@ -25,6 +25,7 @@ import com.exadel.etoolbox.anydiff.util.StringUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
  * <u>Note</u>: This class is not a part of public API and is subject to change. You should not use it directly
  */
 @Builder(builderClassName = "Builder")
+@Slf4j
 public class DiffTask {
 
     private static final UnaryOperator<String> EMPTY_NORMALIZER = StringUtils::defaultString;
@@ -151,7 +153,15 @@ public class DiffTask {
         String rightPreprocessed = getPreprocessor(rightId).apply(rightContent.toString());
         List<String> leftLines = StringUtil.splitByNewline(leftPreprocessed);
         List<String> rightLines = StringUtil.splitByNewline(rightPreprocessed);
-        List<DiffRow> diffRows = generator.generateDiffRows(leftLines, rightLines);
+
+        List<DiffRow> diffRows;
+        try {
+            diffRows = generator.generateDiffRows(leftLines, rightLines);
+        } catch (Exception e) {
+            log.error("Exception when comparing {} and {}", leftId, rightId, e);
+            return new DiffImpl(leftId, rightId)
+                .withChildren(new ErrorBlockImpl(e, taskParameters.getColumnWidth() - 1));
+        }
         diffRows = getPostprocessor().apply(diffRows);
 
         DiffImpl result = new DiffImpl(leftId, rightId);

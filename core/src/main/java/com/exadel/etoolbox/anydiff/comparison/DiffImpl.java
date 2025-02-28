@@ -201,7 +201,7 @@ class DiffImpl implements Diff, PrintableEntry {
                 .stream()
                 .filter(Objects::nonNull)
                 .map(PrintableEntry.class::cast)
-                .map(entry -> entry.toString(target).trim())
+                .map(entry -> entry.toString(target))
                 .collect(Collectors.joining(StringUtils.LF + StringUtils.LF)) +
                 StringUtils.LF;
     }
