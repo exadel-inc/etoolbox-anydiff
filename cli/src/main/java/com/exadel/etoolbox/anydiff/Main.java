@@ -43,9 +43,6 @@ import java.util.List;
 @Slf4j
 public class Main {
 
-    private static final org.slf4j.Marker CONSOLE_ONLY = MarkerFactory.getMarker("CONSOLE_ONLY");
-    private static final org.slf4j.Marker LOGFILE_ONLY = MarkerFactory.getMarker("FILE_ONLY");
-
     private static final String REPLACED_FILENAME_CHARS = "[.,:/?\"<>|*\\\\]+";
 
     private static final String EXTENSION_HTML = ".html";
@@ -67,7 +64,6 @@ public class Main {
                     log.info("-{} (--{}) {}", option.getOpt(), option.getLongOpt(), option.getDescription()));
             return;
         }
-        System.out.print("EToolbox AnyDiff ");
         AnyDiff anyDiff = new AnyDiff()
                 .left(runArguments.getLeft())
                 .right(runArguments.getRight());
@@ -220,8 +216,8 @@ public class Main {
             if (isOneOfMany && diff.getCount() > 0) {
                 log.info("{} difference(-s)", diff.getCount());
             }
-            log.info(CONSOLE_ONLY, diff.toString(OutputType.CONSOLE));
-            log.info(LOGFILE_ONLY, diff.toString(OutputType.LOG));
+            log.info(MarkerFactory.getMarker(Constants.MARKER_CONSOLE_ONLY), diff.toString(OutputType.CONSOLE));
+            log.info(MarkerFactory.getMarker(Constants.MARKER_FILE_ONLY), diff.toString(OutputType.LOG));
         }
     }
 
