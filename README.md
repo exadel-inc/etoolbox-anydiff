@@ -99,7 +99,7 @@ To use Java API, add the following dependency to your Maven project:
 <dependency>
     <groupId>com.exadel.etoolbox</groupId>
     <artifactId>etoolbox-anydiff-core</artifactId>
-    <version>1.1.1</version> <!-- always prefer the latest stable version -->
+    <version>1.1.2</version> <!-- always prefer the latest stable version -->
 </dependency>
 ```
 
