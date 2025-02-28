@@ -20,7 +20,6 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +35,10 @@ class TokenizerUtil {
      */
     static List<String> getTokens(String value) {
         if (StringUtils.isBlank(value)) {
-            return Collections.singletonList(StringUtils.defaultString(value));
+            // We need a modifiable list here because {@link DiffRowGenerator} manipulates it
+            List<String> singletonList = new ArrayList<>();
+            singletonList.add(StringUtils.defaultString(value));
+            return singletonList;
         }
         List<String> split = new ArrayList<>();
         StringBuilder builder = new StringBuilder().append(value.charAt(0));

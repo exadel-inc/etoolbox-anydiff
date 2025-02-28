@@ -73,6 +73,28 @@ public enum Marker {
         }
     },
 
+    ERROR {
+        @Override
+        public String toString() {
+            return "{{err}}";
+        }
+
+        @Override
+        public String toConsole() {
+            return "\u001B[31m";
+        }
+
+        @Override
+        public String toLogFile(Marker previous) {
+            return StringUtils.EMPTY;
+        }
+
+        @Override
+        String toHtml(Marker previous) {
+            return formatHtmlClass("err");
+        }
+    },
+
     INSERT {
         @Override
         public String toString() {

@@ -64,6 +64,9 @@ public class Constants {
     public static final char BRACKET_OPEN = '[';
     public static final char BRACKET_CLOSE = ']';
 
+    public static final String MARKER_CONSOLE_ONLY = "CONSOLE_ONLY";
+    public static final String MARKER_FILE_ONLY = "FILE_ONLY";
+
     public static final String TAG_AUTO_CLOSE = "/>";
     public static final String TAG_CLOSE = ">";
     public static final char TAG_CLOSE_CHAR = '>';

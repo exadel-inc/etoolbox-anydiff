@@ -80,6 +80,22 @@ public enum DiffState {
         public boolean isDeletion() {
             return true;
         }
+    },
+    ERROR {
+        @Override
+        public boolean isChange() {
+            return false;
+        }
+
+        @Override
+        public boolean isInsertion() {
+            return false;
+        }
+
+        @Override
+        public boolean isDeletion() {
+            return false;
+        }
     };
 
     /**

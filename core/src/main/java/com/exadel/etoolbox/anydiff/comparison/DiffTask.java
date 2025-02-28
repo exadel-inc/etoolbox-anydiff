@@ -25,7 +25,9 @@ import com.exadel.etoolbox.anydiff.util.StringUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MarkerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,11 +42,10 @@ import java.util.stream.Collectors;
  * <u>Note</u>: This class is not a part of public API and is subject to change. You should not use it directly
  */
 @Builder(builderClassName = "Builder")
+@Slf4j
 public class DiffTask {
 
     private static final UnaryOperator<String> EMPTY_NORMALIZER = StringUtils::defaultString;
-
-    private static final String MESSAGE_COMPARING = "Comparing... ";
 
     private final ContentType contentType;
 
@@ -118,10 +119,8 @@ public class DiffTask {
                     .build();
             return new DiffImpl(leftId, rightId).withChildren(miss);
         }
-        System.out.print(MESSAGE_COMPARING);
-        Diff result = contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
-        System.out.print(StringUtils.repeat('\b', MESSAGE_COMPARING.length()));
-        return result;
+        log.info(MarkerFactory.getMarker(Constants.MARKER_CONSOLE_ONLY), ".Comparing...");
+        return contentType == ContentType.UNDEFINED ? runForBinary() : runForText();
     }
 
     private Diff runForBinary() {
@@ -151,7 +150,15 @@ public class DiffTask {
         String rightPreprocessed = getPreprocessor(rightId).apply(rightContent.toString());
         List<String> leftLines = StringUtil.splitByNewline(leftPreprocessed);
         List<String> rightLines = StringUtil.splitByNewline(rightPreprocessed);
-        List<DiffRow> diffRows = generator.generateDiffRows(leftLines, rightLines);
+
+        List<DiffRow> diffRows;
+        try {
+            diffRows = generator.generateDiffRows(leftLines, rightLines);
+        } catch (Exception e) {
+            log.error("Exception when comparing {} and {}", leftId, rightId, e);
+            return new DiffImpl(leftId, rightId)
+                .withChildren(new ErrorBlockImpl(e, taskParameters.getColumnWidth() - 1));
+        }
         diffRows = getPostprocessor().apply(diffRows);
 
         DiffImpl result = new DiffImpl(leftId, rightId);
